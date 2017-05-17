@@ -1,0 +1,59 @@
+material <Brown>2
+{
+   technique
+   {
+      pass
+      {
+         diffuse 0.819607843137255 0.76078431372549 0.698039215686274 1.0
+         ambient 0.819607843137255 0.76078431372549 0.698039215686274 1.0
+      }
+   }
+}
+
+material <Charcoal>3
+{
+   technique
+   {
+      pass
+      {
+         diffuse 0.227450980392157 0.227450980392157 0.227450980392157 1.0
+         ambient 0.227450980392157 0.227450980392157 0.227450980392157 1.0
+      }
+   }
+}
+
+material <Gray6>
+{
+   technique
+   {
+      pass
+      {
+         diffuse 0.376470588235294 0.376470588235294 0.376470588235294 1.0
+         ambient 0.376470588235294 0.376470588235294 0.376470588235294 1.0
+      }
+   }
+}
+
+material SketchupDefault
+{
+   technique
+   {
+      pass
+      {
+         diffuse 1.0 1.0 1.0
+         ambient 1.0 1.0 1.0
+      }
+   }
+}
+
+material SketchupDefault_Back
+{
+   technique
+   {
+      pass
+      {
+         diffuse 0.670588235294118 0.690196078431373 0.8
+         ambient 0.670588235294118 0.690196078431373 0.8
+      }
+   }
+}
