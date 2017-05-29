@@ -7,9 +7,11 @@ package mygame;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.collision.CollisionResults;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -23,9 +25,10 @@ import com.jme3.scene.shape.Box;
 public class Coche{
     
     Ruta objetivo;
+    Arma misil;
     Geometry geomBox;
     Spatial coche;
-    //Vector3f posIniC = new Vector3f(-10, 4f, 7.75f);
+    Vector3f posIniC2 = new Vector3f(-10, 4f, 7.75f);
     Vector3f posIniC = new Vector3f(-47, -4f, 8.4f);
     float velocidad=5f;    
     RigidBodyControl cocheFisico;
@@ -60,30 +63,29 @@ public class Coche{
         coche.setName(name);             
         cocheFisico= new RigidBodyControl(1f);                
     }
-    
-    /*
-    public Coche(Spatial c,String name,Ruta obj){
-        objetivo=obj;
-        coche=c;       
         
-        coche.setName(name);
-        cocheFisico= new RigidBodyControl(1f);                
-    }
-    */       
     public void aplicarFisica(){        
         cocheFisico.setFriction(0.95f);
+        
     }
-      
-    
+         
+
     public void avanzar(){
+        //geomBox.lookAt(objetivo.objetivoGeom.getLocalTranslation(), Vector3f.UNIT_Y);
+        //cocheFisico.setPhysicsRotation(geomBox.getLocalRotation());
         coche.lookAt(objetivo.objetivoGeom.getLocalTranslation(), Vector3f.UNIT_Y);
         cocheFisico.setPhysicsRotation(coche.getLocalRotation());
         Vector3f dirFrente= cocheFisico.getPhysicsRotation().getRotationColumn(2);
-        cocheFisico.setLinearVelocity(new Vector3f(-velocidad*dirFrente.normalize().x,-velocidad*dirFrente.normalize().y, -velocidad*dirFrente.normalize().z));        
+        cocheFisico.setLinearVelocity(new Vector3f(-velocidad*dirFrente.normalize().x,-velocidad*dirFrente.normalize().y, -velocidad*dirFrente.normalize().z));                                        
+                    
     }
             
+    public Vector3f mirahacia(){
+        return cocheFisico.getPhysicsRotation().getRotationColumn(2);
+    }
+
 
     
-        
+    
 }
 

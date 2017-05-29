@@ -15,8 +15,13 @@ import com.jme3.math.Vector3f;
  */
 public class ControladorTeclado {    
     Coche coche;
-    public ControladorTeclado(Coche obj){
+    Coche enem;
+    Arma misil;
+    
+    public ControladorTeclado(Coche obj,Arma m,Coche e){
         coche=obj;        
+        misil=m;
+        enem=e;
     }
     
     AnalogListener analogListener = new AnalogListener(){
@@ -41,11 +46,16 @@ public class ControladorTeclado {
                 coche.cocheFisico.applyCentralForce(dirFrente.normalize().mult(-fuerza));
             }                       
             if (name.equals("Depie")) {
+                misil.enmov=true;                
+                Vector3f pos=new Vector3f(coche.cocheFisico.getPhysicsLocation().x,coche.cocheFisico.getPhysicsLocation().y+3f,coche.cocheFisico.getPhysicsLocation().z);
+                misil.balaFisica.setPhysicsLocation(pos);
+                /*
                 coche.cocheFisico.clearForces();
                 Matrix3f mat = new Matrix3f();
                 mat.fromAngleAxis(1, new Vector3f(0, -90, 0));
                 coche.cocheFisico.setPhysicsRotation(mat);
                 coche.cocheFisico.setPhysicsLocation(coche.posIniC);                
+                */
             }
         }
     };   

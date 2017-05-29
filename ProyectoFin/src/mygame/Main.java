@@ -6,12 +6,14 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.collision.CollisionResults;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
+import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
@@ -28,16 +30,15 @@ public class Main extends SimpleApplication {
     private Coche enemigo;
     private Coche jugador;
     private Ruta objetivo;
+    private Arma misilJ;
+    private Arma misilE;
         
     private RigidBodyControl sueloFisico;    
     private Colision colision;
     private ControladorTeclado cntT;
     
     float tiempo=0; 
-
-    Vector3f[] posSetas = new Vector3f[]{
-        new Vector3f(-47, -4, 60f), new Vector3f(-13, -4, -37),
-         new Vector3f(41, -4, 35), new Vector3f(50, -4, 84)};
+    
     
      
     public static void main(String[] args) {
@@ -90,6 +91,7 @@ public class Main extends SimpleApplication {
         //crear enemigo
         
         //enemigo=new Coche("Enemigo", objetivo);
+        //integrarObjeto(enemigo.geomBox, enemigo.cocheFisico, estadosFisicos, enemigo.posIniC,"");
         enemigo=new Coche(assetManager.loadModel("Models/Mario/Kart_Mario.j3o"), "Enemigo", objetivo);
         integrarObjeto(enemigo.coche, enemigo.cocheFisico, estadosFisicos, enemigo.posIniC,0);
         enemigo.cocheFisico.setLinearDamping(0.5f);
@@ -97,26 +99,45 @@ public class Main extends SimpleApplication {
         
         //crear coche Jugador
         jugador=new Coche(assetManager.loadModel("Models/Crash_Kart/Crash_Kart.j3o"),"Jugador");
-        integrarObjeto(jugador.coche, jugador.cocheFisico, estadosFisicos, jugador.posIniC,0);
+        integrarObjeto(jugador.coche, jugador.cocheFisico, estadosFisicos, jugador.posIniC2,0);
         jugador.aplicarFisica();        
+                
+        //crear misil Enemigo
+        //misilE = new Arma("MisilE",jugador);
+        //integrarObjeto(misilE.balaG,misilE.balaFisica,estadosFisicos,misilE.posIniC, "");
+        misilE = new Arma(assetManager.loadModel("Models/misil2/AGM-114HellFire.j3o"),"MisilE",jugador);
+        integrarObjeto(misilE.bala,misilE.balaFisica,estadosFisicos,misilE.posIniC2, 0);
+        misilE.aplicarFisica();
+        
+        
+        //crear misil Jugador
+        //misilJ = new Arma("MisilJ",enemigo);
+        //integrarObjeto(misilJ.balaG,misilJ.balaFisica,estadosFisicos,misilJ.posIniC, "");
+        
+        misilJ = new Arma(assetManager.loadModel("Models/misil2/AGM-114HellFire.j3o"),"MisilJ",enemigo);
+        integrarObjeto(misilJ.bala,misilJ.balaFisica,estadosFisicos,misilJ.posIniC, 0);
+        misilJ.aplicarFisica();        
+        
+        
+        //crear setas        
+            Seta seta1 =new Seta(assetManager.loadModel("Models/Seta/untitled.j3o"),"Seta1");                                                
+            integrarObjeto(seta1.seta, seta1.setaFisico, estadosFisicos, seta1.posicionActual(),2);
+            seta1.propiedades();
+            Seta seta2 =new Seta(assetManager.loadModel("Models/Seta/untitled.j3o"),"Seta2");  
+            seta2.id=2;
+            integrarObjeto(seta2.seta, seta2.setaFisico, estadosFisicos, seta2.posicionActual(), 2);
+            seta2.propiedades();
         
         
         //crear colision
-        colision=new Colision(objetivo);
+        colision=new Colision(objetivo,misilJ,misilE,seta1,seta2);
         estadosFisicos.getPhysicsSpace().addCollisionListener(colision);
         
-        /*
-        //crear setas
-        for (int i = 0; i < posSetas.length; i++) {
-            Seta seta =new Seta(assetManager.loadModel("Models/Seta/untitled.j3o"),"Seta"+i);                        
-            integrarObjeto(seta.seta, seta.setaFisico, estadosFisicos, posSetas[i], 2);
-            seta.propiedades();
-        }
-        */
+        
         
         
         //cargar Teclado
-        cntT= new ControladorTeclado(jugador);
+        cntT= new ControladorTeclado(jugador,misilJ,enemigo);
         inicTeclado();
    }
 
@@ -135,8 +156,20 @@ public class Main extends SimpleApplication {
         //mover enemigo
         enemigo.avanzar();
         
+        //Rayo detector enemigo a mi coche
+        Ray rayo = new Ray (new Vector3f (enemigo.cocheFisico.getPhysicsLocation().x, enemigo.cocheFisico.getPhysicsLocation().y-0.5f, enemigo.cocheFisico.getPhysicsLocation().z),enemigo.mirahacia());            
+        CollisionResults results1 = new CollisionResults();
+        jugador.coche.collideWith(rayo, results1);
+        misilE.dectector(results1,enemigo.cocheFisico.getPhysicsLocation());
+        
+        misilJ.avanzar();
+        
         if(!colision.cambio){            
             colision.cambio=true;
+        }
+        if(!colision.cambio1){
+            colision.cambio1=true;            
+            
         }
     }
 
@@ -189,4 +222,8 @@ public class Main extends SimpleApplication {
         if (posicion==null)   posicion = Vector3f.ZERO;
        objetoFisico.setPhysicsLocation(posicion);
     }
+    
+       
+    
+    
 }

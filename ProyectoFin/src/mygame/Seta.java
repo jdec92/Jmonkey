@@ -16,14 +16,30 @@ import com.jme3.scene.Spatial;
 public class Seta {
     Spatial seta;    
     RigidBodyControl setaFisico;    
+    int id=0;
+    Vector3f[] posSetas = new Vector3f[]{
+        new Vector3f(-47, -4, 60f), new Vector3f(-13, -4, -37),
+         new Vector3f(41, -4, 35), new Vector3f(50, -4, 84)};
     
     public Seta(Spatial c,String name){
         seta=c;
         seta.setName(name);
-        setaFisico= new RigidBodyControl(9.8f);                
+        setaFisico= new RigidBodyControl(1f);                
     }
     
     public void propiedades(){
         setaFisico.setGravity(new Vector3f(0,0,0));
     }
+    
+    public Vector3f posicionActual(){
+       return posSetas[id];
+   }
+    
+     public void cambiarPos(){
+       id++;
+       if(id==posSetas.length){
+           id=0;
+       }
+       setaFisico.setPhysicsLocation(posicionActual());
+   }
 }

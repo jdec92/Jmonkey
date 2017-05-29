@@ -17,9 +17,9 @@ import com.jme3.scene.shape.Sphere;
  */
 public class Ruta {
    Vector3f[] pos = new Vector3f[]{
-        new Vector3f(-47, -4f, 80f), new Vector3f(81, -4f, 84),
-         new Vector3f(84, -4f, 38), new Vector3f(25, -4f, 33),         
-         new Vector3f(23, -4f, -35), new Vector3f(-47, -4f, -35)};  
+        new Vector3f(-47, -4f, 85f), new Vector3f(85, -4f, 84),
+         new Vector3f(85, -4f, 35), new Vector3f(22, -4f, 35),         
+         new Vector3f(23, -4f, -38), new Vector3f(-49, -4f, -38)};  
    int id=0;
    
    Geometry objetivoGeom;
@@ -33,7 +33,7 @@ public class Ruta {
    }
    
    public void aplicarFisica(){
-       //objetivoGeom.setCullHint(Spatial.CullHint.Always);
+       objetivoGeom.setCullHint(Spatial.CullHint.Always);
        objFisico.setRestitution(0f);
    }
    
