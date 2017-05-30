@@ -3,10 +3,9 @@ package mygame;
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.collision.shapes.BoxCollisionShape;
-import com.jme3.bullet.collision.shapes.CompoundCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.collision.CollisionResults;
+import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
@@ -30,9 +29,13 @@ public class Main extends SimpleApplication {
     private Coche enemigo;
     private Coche jugador;
     private Ruta objetivo;
-    private Arma misilJ;
-    private Arma misilE;
-        
+    private Arma misilJD;
+    private Arma misilED;        
+    private Arma cajaE;
+    private Arma cajaJ;
+    
+    private BitmapText texto;  
+    
     private RigidBodyControl sueloFisico;    
     private Colision colision;
     private ControladorTeclado cntT;
@@ -102,22 +105,32 @@ public class Main extends SimpleApplication {
         integrarObjeto(jugador.coche, jugador.cocheFisico, estadosFisicos, jugador.posIniC2,0);
         jugador.aplicarFisica();        
                 
-        //crear misil Enemigo
+        //crear Armas Enemigo
         //misilE = new Arma("MisilE",jugador);
-        //integrarObjeto(misilE.balaG,misilE.balaFisica,estadosFisicos,misilE.posIniC, "");
-        misilE = new Arma(assetManager.loadModel("Models/misil2/AGM-114HellFire.j3o"),"MisilE",jugador);
-        integrarObjeto(misilE.bala,misilE.balaFisica,estadosFisicos,misilE.posIniC2, 0);
-        misilE.aplicarFisica();
+        //integrarObjeto(misilED.balaG,misilED.balaFisica,estadosFisicos,misilED.posIniC, "");
         
+        //misil dirigido
+        misilED = new Arma(assetManager.loadModel("Models/misil2/AGM-114HellFire.j3o"),"MisilE",jugador);
+        integrarObjeto(misilED.bala,misilED.balaFisica,estadosFisicos,misilED.posIniC, 0);
+        misilED.aplicarFisica();        
+        //caja Enemigo
+        cajaE = new Arma("MisilE", jugador);
+        integrarObjeto(cajaE.balaG, cajaE.balaFisica, estadosFisicos, cajaE.posIniC,"tnt");        
+        cajaE.balaFisica.setGravity(Vector3f.ZERO);
         
-        //crear misil Jugador
+        //crear armas
         //misilJ = new Arma("MisilJ",enemigo);
-        //integrarObjeto(misilJ.balaG,misilJ.balaFisica,estadosFisicos,misilJ.posIniC, "");
+        //integrarObjeto(misilJD.balaG,misilJD.balaFisica,estadosFisicos,misilJD.posIniC, "");
         
-        misilJ = new Arma(assetManager.loadModel("Models/misil2/AGM-114HellFire.j3o"),"MisilJ",enemigo);
-        integrarObjeto(misilJ.bala,misilJ.balaFisica,estadosFisicos,misilJ.posIniC, 0);
-        misilJ.aplicarFisica();        
-        
+        //misil dirigido
+        misilJD = new Arma(assetManager.loadModel("Models/misil2/AGM-114HellFire.j3o"),"MisilJ",enemigo);
+        integrarObjeto(misilJD.bala,misilJD.balaFisica,estadosFisicos,misilJD.posIniC, 0);
+        misilJD.aplicarFisica();        
+        //caja Enemigo
+        cajaJ = new Arma("MisilJ", jugador);
+        integrarObjeto(cajaJ.balaG, cajaJ.balaFisica, estadosFisicos, cajaJ.posIniC,"");        
+        cajaJ.balaFisica.setGravity(Vector3f.ZERO);
+                
         
         //crear setas        
             Seta seta1 =new Seta(assetManager.loadModel("Models/Seta/untitled.j3o"),"Seta1");                                                
@@ -130,14 +143,14 @@ public class Main extends SimpleApplication {
         
         
         //crear colision
-        colision=new Colision(objetivo,misilJ,misilE,seta1,seta2);
+        colision=new Colision(objetivo,misilJD,misilED,cajaJ,cajaE,seta1,seta2);
         estadosFisicos.getPhysicsSpace().addCollisionListener(colision);
         
         
         
         
         //cargar Teclado
-        cntT= new ControladorTeclado(jugador,misilJ,enemigo);
+        cntT= new ControladorTeclado(jugador,misilJD,enemigo);
         inicTeclado();
    }
 
@@ -160,9 +173,17 @@ public class Main extends SimpleApplication {
         Ray rayo = new Ray (new Vector3f (enemigo.cocheFisico.getPhysicsLocation().x, enemigo.cocheFisico.getPhysicsLocation().y-0.5f, enemigo.cocheFisico.getPhysicsLocation().z),enemigo.mirahacia());            
         CollisionResults results1 = new CollisionResults();
         jugador.coche.collideWith(rayo, results1);
-        misilE.dectector(results1,enemigo.cocheFisico.getPhysicsLocation());
+        misilED.dectector(results1,enemigo.cocheFisico.getPhysicsLocation());
         
-        misilJ.avanzar();
+        //detector caja enemigo al misil
+        Vector3f posM= misilJD.balaFisica.getPhysicsLocation();
+        Vector3f dirM = misilJD.balaFisica.getPhysicsRotation().getRotationColumn(2).normalize();
+        Vector3f parteM = new Vector3f( posM.x+1f*dirM.x, posM.y, pos.z+1f*dir.z );
+        float distancia = enemigo.cocheFisico.getPhysicsLocation().distance(misilJD.balaFisica.getPhysicsLocation());        
+        cajaE.defensa(distancia, parteM);
+        
+        
+        misilJD.avanzarMD();
         
         if(!colision.cambio){            
             colision.cambio=true;
@@ -171,6 +192,26 @@ public class Main extends SimpleApplication {
             colision.cambio1=true;            
             
         }
+        /*
+        //texto en pantalla
+        guiNode.detachAllChildren();
+        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        texto = new BitmapText(guiFont, false);
+        texto.setSize(guiFont.getCharSet().getRenderedSize());
+        switch(colision.tipoA){
+            case 0:
+                texto.setText("Tipo de Arma: Misil Dirigido");
+                break;
+            case 1:
+                texto.setText("Tipo de Arma: Caja");
+                break;
+        }        
+        texto.setColor(ColorRGBA.Red);
+        texto.setLocalTranslation(10, 480, 0);
+        texto.setSize(25);
+        texto.setName("Texto");
+        guiNode.attachChild(texto);
+        */
     }
 
     @Override
@@ -209,9 +250,10 @@ public class Main extends SimpleApplication {
 
     public  void  integrarObjeto (Geometry objetoVisual, RigidBodyControl objetoFisico, BulletAppState estadosFisicos, Vector3f posicion, String textura){ 
         Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"); 
-        if ((textura!=null)&& (textura.length()>10))  material.setTexture("ColorMap", assetManager.loadTexture( new TextureKey(textura)));
-        else if (textura.equals("azul")){       material.setColor("Color", new ColorRGBA(0.247f, 0.285f, 0.678f, 1));}
-        else if (textura.equals("gris")) material.setColor("Color", ColorRGBA.Gray);
+        if ((textura!=null)&& (textura.length()>10))  material.setTexture("ColorMap", assetManager.loadTexture( new TextureKey(textura)));        
+        else if (textura.equals("tnt")){
+            material = assetManager.loadMaterial("Materials/Generated/caja.j3m");            
+        }
         else   {  material = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");  
                     material.setBoolean("UseMaterialColors", true);
                     material.setColor("Diffuse", new ColorRGBA(0.7f, (float) Math.random(), 0.5f, 1f));  }

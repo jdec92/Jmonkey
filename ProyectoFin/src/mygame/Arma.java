@@ -31,13 +31,15 @@ public class Arma {
     Vector3f posIniC2 = new Vector3f(0, -100f, 0f);
     RigidBodyControl balaFisica;
     boolean enmov = false;
-    boolean usar = false;
+    boolean usar = false;    
+    
 
     public Arma(String name, Coche c) {
+        
         obj = c;
-        Cylinder bal = new Cylinder(32, 32, 0.1f, 0.2f, 1f, true, false);
+        Box bal=new Box(0.5f,0.5f,0.5f);
         balaG = new Geometry(name, bal);
-        balaFisica = new RigidBodyControl(1f);
+        balaFisica = new RigidBodyControl(1000f);
     }
 
     public Arma(Spatial s, String name, Coche c) {
@@ -57,15 +59,31 @@ public class Arma {
         
         if (r.size() > 0 && usar) {
             enmov = true;
-            Vector3f posi = new Vector3f(pos.x, pos.y + 3, pos.z);
+            Vector3f posi = new Vector3f(pos.x, pos.y + 2, pos.z);
             balaFisica.setPhysicsLocation(posi);
+            
         }
-        avanzar();
+        avanzarMD();        
+        
+        
     }
 
-    public void avanzar() {
+    public void defensa(float d, Vector3f pos) {
+        
+        if (d<2f && usar) {            
+            Vector3f posi = new Vector3f(pos.x, pos.y, pos.z);
+            balaFisica.setGravity(Vector3f.UNIT_Y);
+            balaFisica.setPhysicsLocation(posi);
+            usar=false;
+        }        
+        
+        
+    }
+    
+    public void avanzarMD() {
         float velocidad = -10f;
         if (enmov) {
+            usar=false;
             //balaG.lookAt(obj.coche.getLocalTranslation(), Vector3f.UNIT_Y);
             //balaFisica.setPhysicsRotation(balaG.getLocalRotation());        
             bala.lookAt(obj.coche.getLocalTranslation(), Vector3f.UNIT_Y);
@@ -75,10 +93,11 @@ public class Arma {
         }
 
     }
-
+    
     public void posOrigen() {
-        enmov = false;
+        enmov = false;        
         balaFisica.setLinearVelocity(Vector3f.ZERO);
+        balaFisica.setGravity(Vector3f.ZERO);
         balaFisica.setPhysicsLocation(posIniC2);
     }
 }
