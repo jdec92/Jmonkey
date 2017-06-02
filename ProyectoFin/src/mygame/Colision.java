@@ -15,12 +15,15 @@ import java.util.Random;
  */
 public class Colision implements PhysicsCollisionListener{
     boolean cambio;
+    Coche jugador,enemigo;
     Ruta obj;
     Arma misilJD,misilED,cajaJ,cajaE;
     Seta seta1,seta2;
     int tipoA;
     
-    public Colision(Ruta r,Arma mjd,Arma med,Arma cj,Arma ce,Seta s1,Seta s2){
+    public Colision(Coche cochej,Coche cochee,Ruta r,Arma mjd,Arma med,Arma cj,Arma ce,Seta s1,Seta s2){
+        jugador=cochej;
+        enemigo=cochee;
         obj=r;
         misilJD=mjd;
         misilED=med;        
@@ -44,7 +47,8 @@ public class Colision implements PhysicsCollisionListener{
             //si el enemigo le impacta algún misil, el enemigo se queda parado y el misil va a la posicion oculta
             else if(cambio && event.getNodeA().getName().equals("Enemigo") && event.getNodeB().getName().equals("MisilJ")){
                 cambio=false;                
-                misilJD.posOrigen();                                
+                misilJD.posOrigen();
+                enemigo.tiempoParado.reset();                
             }
             
             //si al jugador le impacta algún misil, el jugador se queda parado y el misil va a la posicion oculta
@@ -57,8 +61,8 @@ public class Colision implements PhysicsCollisionListener{
             else if(cambio && event.getNodeB().getName().substring(0,4).equals("Seta")){
                 cambio=false;
                 Random r=new Random();
-                //tipoA=r.nextInt(2);                
-                tipoA=1;
+                tipoA=r.nextInt(2);
+                System.out.println("Tipo de Arma:"+tipoA);
                 if(event.getNodeB().getName().equals("Seta1")){
                     seta1.cambiarPos();
                     if(event.getNodeA().getName().equals("Enemigo")){
@@ -120,7 +124,7 @@ public class Colision implements PhysicsCollisionListener{
                         }
                     }
                 }
-                //System.out.println("Arma seleccionada: "+tipoA);
+                System.out.println("Arma seleccionada: "+tipoA);
             }
             
             //si algo cocha contra la caja del enemigo, si es coche paraliza y si es misil vuelve a posicion oculta            

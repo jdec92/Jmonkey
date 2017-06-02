@@ -29,7 +29,7 @@ public class ControladorTeclado {
         public void onAnalog(String name, float value, float tpf) {
 
             Vector3f dirFrente = coche.cocheFisico.getPhysicsRotation().getRotationColumn(2);
-            float fuerza = coche.cocheFisico.getMass() * 5f;
+            float fuerza = coche.cocheFisico.getMass() * 10f*1.5f;
 
             if (name.equals("Derecha")) {
                 coche.cocheFisico.applyTorque(new Vector3f(0, -4f, 0));                

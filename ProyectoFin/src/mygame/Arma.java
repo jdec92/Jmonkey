@@ -5,18 +5,12 @@
  */
 package mygame;
 
-import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.collision.CollisionResults;
-import com.jme3.input.KeyInput;
-import com.jme3.input.controls.AnalogListener;
-import com.jme3.input.controls.KeyTrigger;
-import com.jme3.math.Matrix3f;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
-import com.jme3.scene.shape.Cylinder;
 
 /**
  *
@@ -70,11 +64,12 @@ public class Arma {
 
     public void defensa(float s1,float s2,float dm, Vector3f posM,Vector3f posC) {
         
-        if (dm<3f && usar) {                        
+        if (dm<5f && usar) {                        
             balaFisica.setGravity(Vector3f.UNIT_Y);
             balaFisica.setPhysicsLocation(posM);
             usar=false;
-        }else if(s1<4f && usar || s2<4f && usar){
+        }else if(s1<8f && usar || s2<8f && usar){
+            //System.out.println("Aqui entra"+s1+" usar:"+usar);
             balaFisica.setGravity(Vector3f.UNIT_Y);
             balaFisica.setPhysicsLocation(posC);
             usar=false;

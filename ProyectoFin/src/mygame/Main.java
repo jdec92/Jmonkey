@@ -12,7 +12,6 @@ import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Matrix3f;
-import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
@@ -30,7 +29,7 @@ public class Main extends SimpleApplication {
     private Ruta objetivo;
     private Arma misilJD,misilED,cajaE,cajaJ;
     private Seta seta1,seta2;
-    
+    private Spatial suelo;    
     private BitmapText texto;  
     
     private RigidBodyControl sueloFisico;    
@@ -71,7 +70,7 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(mundo);
 
         //carga esqueleto mapa y da propiedades
-        Spatial suelo = assetManager.loadModel("Scenes/colision.j3o");
+        suelo = assetManager.loadModel("Scenes/colision.j3o");
         suelo.setName("Suelo");
         sueloFisico = new RigidBodyControl(0.0f);                
         integrarObjeto(suelo, sueloFisico, estadosFisicos, new Vector3f(0f, -4.1f,0f), 0);
@@ -86,7 +85,7 @@ public class Main extends SimpleApplication {
         
         //crear enemigo                
         enemigo=new Coche(assetManager.loadModel("Models/Mario/Kart_Mario.j3o"), "Enemigo", objetivo);
-        integrarObjeto(enemigo.coche, enemigo.cocheFisico, estadosFisicos, enemigo.posIniC,0);
+        integrarObjeto(enemigo.coche, enemigo.cocheFisico, estadosFisicos, enemigo.posIniC,1);
         enemigo.cocheFisico.setLinearDamping(0.5f);
                 
         //crear coche Jugador
@@ -125,9 +124,14 @@ public class Main extends SimpleApplication {
         
         
         //crear colision
-        colision=new Colision(objetivo,misilJD,misilED,cajaJ,cajaE,seta1,seta2);
+        colision=new Colision(jugador,enemigo,objetivo,misilJD,misilED,cajaJ,cajaE,seta1,seta2);
         estadosFisicos.getPhysicsSpace().addCollisionListener(colision);
                
+        
+        // tiempos de penalizacion
+        enemigo.tiempoParado=getTimer();
+        jugador.tiempoParado=getTimer();
+        
         //cargar Teclado
         cntT= new ControladorTeclado(jugador,misilJD,enemigo);
         inicTeclado();
@@ -136,35 +140,58 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
         tiempo=tiempo+tpf;
-        
-        //posicion de la camara
+        //posiciones de los coches
         Vector3f posE= enemigo.cocheFisico.getPhysicsLocation();
         Vector3f dirE= enemigo.cocheFisico.getPhysicsRotation().getRotationColumn(2).normalize();
-        Vector3f parteTrasera = new Vector3f( posE.x-15*dirE.x, posE.y-3f*dirE.y+10f , posE.z - 15f*dirE.z );
-        Vector3f parteDelantera= new Vector3f( posE.x+dirE.x, posE.y+dirE.y, posE.z + dirE.z );
+        Vector3f posJ= jugador.cocheFisico.getPhysicsLocation();
+        Vector3f dirJ= jugador.cocheFisico.getPhysicsRotation().getRotationColumn(2).normalize();        
+        //posicion de la camara        
+        Vector3f camP=posJ;
+        Vector3f dirC=dirJ;
+        Vector3f parteTrasera = new Vector3f( camP.x-15*dirC.x, camP.y-3f*dirC.y+10f , camP.z - 15f*dirC.z );
+        Vector3f parteDelantera= new Vector3f( camP.x+dirC.x, camP.y+dirC.y, camP.z + dirC.z );        
         cam.setLocation( parteTrasera );
         cam.lookAt( parteDelantera, Vector3f.UNIT_Y);
-        
-        //mover enemigo
-        enemigo.avanzar();
+                
         
         //Detecta si pasa delante del enemigo el jugador y dispara
-        CollisionResults results1 = new CollisionResults();
-        jugador.coche.collideWith(enemigo.rayoFrente(), results1);
-        misilED.dectector(results1,enemigo.cocheFisico.getPhysicsLocation());
+        CollisionResults detecJugador = new CollisionResults();
+        jugador.coche.collideWith(enemigo.rayoFrente(), detecJugador);        
+        misilED.dectector(detecJugador,enemigo.cocheFisico.getPhysicsLocation());
+                
+        //Detecta distancia con pared del coche enemigo
+        CollisionResults enemigoIz = new CollisionResults();
+        suelo.collideWith(enemigo.rayosIzq(),enemigoIz);
+        float distEI=0;
+        float distED=0;
+        if (enemigoIz.getClosestCollision() != null){
+            distEI=enemigoIz.getClosestCollision().getDistance();
+        }
+        CollisionResults enemigoDr = new CollisionResults();
+        suelo.collideWith(enemigo.rayosDer(),enemigoDr);
+        if(enemigoDr.getClosestCollision()!=null){
+            distED=enemigoDr.getClosestCollision().getDistance();        
+        }
+                
+        //Detecta enemigo un obstaculo
+        CollisionResults detecObtE = new CollisionResults();
+        jugador.coche.collideWith(enemigo.rayoObstaculo(),detecObtE);
+        cajaE.balaG.collideWith(enemigo.rayoObstaculo(), detecObtE);
+        enemigo.esquivar(detecObtE,distEI,distED);
+        
         
         //detector caja enemigo al misil y caja y seta
         Vector3f posM= misilJD.balaFisica.getPhysicsLocation();
         Vector3f dirM = misilJD.balaFisica.getPhysicsRotation().getRotationColumn(2).normalize();
-        Vector3f parteM = new Vector3f( posM.x+0.5f*dirM.x, posM.y, posM.z+0.5f*dirM.z );
+        Vector3f parteM = new Vector3f( posM.x+2.5f*dirM.x, posM.y, posM.z+2.5f*dirM.z );
         float distancia = enemigo.cocheFisico.getPhysicsLocation().distance(misilJD.bala.getLocalTranslation());        
         float dseta1 = enemigo.cocheFisico.getPhysicsLocation().distance(seta1.setaFisico.getPhysicsLocation());
         float dseta2 = enemigo.cocheFisico.getPhysicsLocation().distance(seta2.setaFisico.getPhysicsLocation());
-        Vector3f posC = new Vector3f( posE.x-3f*dirE.x, posE.y-dirE.y, posE.z-3f*dirE.z );
-        cajaE.defensa(dseta1,dseta2,distancia, parteM, posC);
-        
+        Vector3f posC = new Vector3f( posE.x-3f*dirE.x, posE.y-dirE.y, posE.z-3f*dirE.z );        
+        cajaE.defensa(dseta1,dseta2,distancia, parteM, posC);        
                 
-        
+        //mover enemigo
+        enemigo.avanzar(dseta1,dseta2,seta1.seta.getLocalTranslation(),seta2.seta.getLocalTranslation());
         
         misilJD.avanzarMD();
         
@@ -172,6 +199,7 @@ public class Main extends SimpleApplication {
         if(!colision.cambio){            
             colision.cambio=true;
         }        
+                
         
         //texto en pantalla
         guiNode.detachAllChildren();
@@ -180,7 +208,7 @@ public class Main extends SimpleApplication {
         texto.setSize(guiFont.getCharSet().getRenderedSize());
         switch(colision.tipoA){
             case 0:
-                texto.setText("Tipo de Arma: Misil Dirigido");
+                texto.setText("Tipo de Arma");
                 break;
             case 1:
                 texto.setText("Tipo de Arma: Caja");
@@ -218,9 +246,7 @@ public class Main extends SimpleApplication {
             posicion = Vector3f.ZERO;
         }
         if (giro == 1) {
-            Matrix3f mat = new Matrix3f();
-            mat.fromAngleAxis(1, new Vector3f(0, -90, 0));
-            objetoFisico.setPhysicsRotation(mat);
+            posicion=new Vector3f(posicion.x,posicion.y,posicion.z);
         } else if (giro == 2) {
             Matrix3f mat = new Matrix3f();
             mat.fromAngleAxis(1, new Vector3f(-90, 0, 0));

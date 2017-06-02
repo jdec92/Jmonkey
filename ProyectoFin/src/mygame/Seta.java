@@ -39,7 +39,8 @@ public class Seta {
        id++;
        if(id==posSetas.length){
            id=0;
-       }
+       }         
        setaFisico.setPhysicsLocation(posicionActual());
+       //System.out.println("Cambia pos seta");
    }
 }
