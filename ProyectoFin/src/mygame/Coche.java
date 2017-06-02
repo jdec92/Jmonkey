@@ -27,12 +27,10 @@ public class Coche{
     Ruta objetivo;
     Arma misil;
     Geometry geomBox;
-    Spatial coche;
-    Vector3f posIniC2 = new Vector3f(-10, 4f, 7.75f);
+    Spatial coche;    
     Vector3f posIniC = new Vector3f(-47, -4f, 8.4f);
     float velocidad=5f;    
-    RigidBodyControl cocheFisico;
-    
+    RigidBodyControl cocheFisico;        
     
     //coche normal
     public Coche(String name){        
@@ -45,7 +43,8 @@ public class Coche{
         coche=c;
         coche.center();
         coche.setName(name);
-        cocheFisico= new RigidBodyControl(1f);                
+        cocheFisico= new RigidBodyControl(1f);                        
+        
     }
     
     //coche con ruta    
@@ -80,10 +79,13 @@ public class Coche{
                     
     }
             
-    public Vector3f mirahacia(){
-        return cocheFisico.getPhysicsRotation().getRotationColumn(2);
+    public Ray rayoFrente(){        
+        Vector3f direccion=cocheFisico.getPhysicsRotation().getRotationColumn(2);
+        Ray rayo= new Ray (new Vector3f (cocheFisico.getPhysicsLocation().x, cocheFisico.getPhysicsLocation().y-0.5f, cocheFisico.getPhysicsLocation().z),direccion);            
+        return rayo;
     }
 
+    
 
     
     

@@ -27,11 +27,10 @@ public class Arma {
     Coche obj;
     Geometry balaG;
     Spatial bala;
-    Vector3f posIniC = new Vector3f(0, 100f, 0);
-    Vector3f posIniC2 = new Vector3f(0, -100f, 0f);
+    Vector3f posIniC;    
     RigidBodyControl balaFisica;
-    boolean enmov = false;
-    boolean usar = false;    
+    boolean usar = false;   
+    boolean lanzar=false;
     
 
     public Arma(String name, Coche c) {
@@ -40,6 +39,7 @@ public class Arma {
         Box bal=new Box(0.5f,0.5f,0.5f);
         balaG = new Geometry(name, bal);
         balaFisica = new RigidBodyControl(1000f);
+        posIniC=new Vector3f(100f, 100f, 0);
     }
 
     public Arma(Spatial s, String name, Coche c) {
@@ -48,6 +48,7 @@ public class Arma {
         bala.center();
         bala.setName(name);
         balaFisica = new RigidBodyControl(1f);
+        posIniC=new Vector3f(0f, 100f, 0);
     }
 
     public void aplicarFisica() {
@@ -55,37 +56,36 @@ public class Arma {
         balaFisica.setLinearDamping(0.5f);
     }
 
-    public void dectector(CollisionResults r, Vector3f pos) {
-        
-        if (r.size() > 0 && usar) {
-            enmov = true;
+    public void dectector(CollisionResults r, Vector3f pos) {        
+        if (r.size() > 0 && usar) {            
+            usar=false;            
             Vector3f posi = new Vector3f(pos.x, pos.y + 2, pos.z);
-            balaFisica.setPhysicsLocation(posi);
-            
+            balaFisica.setPhysicsLocation(posi);                        
+            lanzar=true;
         }
         avanzarMD();        
         
         
     }
 
-    public void defensa(float d, Vector3f pos) {
+    public void defensa(float s1,float s2,float dm, Vector3f posM,Vector3f posC) {
         
-        if (d<2f && usar) {            
-            Vector3f posi = new Vector3f(pos.x, pos.y, pos.z);
+        if (dm<3f && usar) {                        
             balaFisica.setGravity(Vector3f.UNIT_Y);
-            balaFisica.setPhysicsLocation(posi);
+            balaFisica.setPhysicsLocation(posM);
             usar=false;
-        }        
+        }else if(s1<4f && usar || s2<4f && usar){
+            balaFisica.setGravity(Vector3f.UNIT_Y);
+            balaFisica.setPhysicsLocation(posC);
+            usar=false;
+        }       
         
         
     }
     
     public void avanzarMD() {
         float velocidad = -10f;
-        if (enmov) {
-            usar=false;
-            //balaG.lookAt(obj.coche.getLocalTranslation(), Vector3f.UNIT_Y);
-            //balaFisica.setPhysicsRotation(balaG.getLocalRotation());        
+        if (lanzar) {                        
             bala.lookAt(obj.coche.getLocalTranslation(), Vector3f.UNIT_Y);
             balaFisica.setPhysicsRotation(bala.getLocalRotation());
             Vector3f dirFrente2 = balaFisica.getPhysicsRotation().getRotationColumn(2);
@@ -95,9 +95,9 @@ public class Arma {
     }
     
     public void posOrigen() {
-        enmov = false;        
+        lanzar = false;        
         balaFisica.setLinearVelocity(Vector3f.ZERO);
         balaFisica.setGravity(Vector3f.ZERO);
-        balaFisica.setPhysicsLocation(posIniC2);
+        balaFisica.setPhysicsLocation(posIniC);        
     }
 }

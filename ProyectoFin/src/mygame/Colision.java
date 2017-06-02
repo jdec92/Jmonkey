@@ -15,7 +15,6 @@ import java.util.Random;
  */
 public class Colision implements PhysicsCollisionListener{
     boolean cambio;
-    boolean cambio1;
     Ruta obj;
     Arma misilJD,misilED,cajaJ,cajaE;
     Seta seta1,seta2;
@@ -30,35 +29,36 @@ public class Colision implements PhysicsCollisionListener{
         seta1=s1;
         seta2=s2;
         cambio=true;
-        cambio1=true;
     }        
     @Override
     public void collision(PhysicsCollisionEvent event) {
         //si colision es diferente al suelo
         if(!event.getNodeB().getName().equals("Suelo")){
-            //si el enemigo cocha con la esfera
+            
+            //si el enemigo cocha con la esfera, cambia la posicion de la esfera
             if(cambio && event.getNodeB().getName().equals("Bola") && event.getNodeA().getName().equals("Enemigo")){
                 cambio=false;
-                obj.cambiarPos();
-                //System.out.println("Colision++: "+event.getNodeA().getName()+" contra "+event.getNodeB().getName());   
+                obj.cambiarPos();                
             }
-            //si el enemigo le impacta algún misil
-            else if(cambio1 && event.getNodeA().getName().equals("Enemigo") && event.getNodeB().getName().equals("MisilJ")){
-                cambio1=false;                
-                misilJD.posOrigen();                
-                //System.out.println("Colision--: "+event.getNodeA().getName()+" contra "+event.getNodeB().getName());       
+            
+            //si el enemigo le impacta algún misil, el enemigo se queda parado y el misil va a la posicion oculta
+            else if(cambio && event.getNodeA().getName().equals("Enemigo") && event.getNodeB().getName().equals("MisilJ")){
+                cambio=false;                
+                misilJD.posOrigen();                                
             }
-            //si al jugador le impacta algún misil
-            else if(cambio1 && event.getNodeA().getName().equals("Jugador") && event.getNodeB().getName().equals("MisilE")){
-                cambio1=false;                
-                misilED.posOrigen();
-                    //System.out.println("Colision: "+event.getNodeA().getName()+" contra "+event.getNodeB().getName());       
+            
+            //si al jugador le impacta algún misil, el jugador se queda parado y el misil va a la posicion oculta
+            else if(cambio && event.getNodeA().getName().equals("Jugador") && event.getNodeB().getName().equals("MisilE")){
+                cambio=false;                
+                misilED.posOrigen();                    
             }
-            //si alguien colisiona con una seta
-            else if(cambio1 && event.getNodeB().getName().substring(0,4).equals("Seta")){
-                cambio1=false;
+            
+            //si alguien colisiona con una seta1 o seta2 tiene que activa el arma y mover la seta
+            else if(cambio && event.getNodeB().getName().substring(0,4).equals("Seta")){
+                cambio=false;
                 Random r=new Random();
-                tipoA=1;                
+                //tipoA=r.nextInt(2);                
+                tipoA=1;
                 if(event.getNodeB().getName().equals("Seta1")){
                     seta1.cambiarPos();
                     if(event.getNodeA().getName().equals("Enemigo")){
@@ -120,13 +120,21 @@ public class Colision implements PhysicsCollisionListener{
                         }
                     }
                 }
-                System.out.println("Arma seleccionada: "+tipoA);
+                //System.out.println("Arma seleccionada: "+tipoA);
             }
-            //si el misil cocha con la caja
-            else if(cambio1 && event.getNodeA().getName().equals("MisilJ") && event.getNodeB().getName().equals("MisilE")){
-                cambio1=false;                
-                misilJD.posOrigen();                
-                //System.out.println("Colision--: "+event.getNodeA().getName()+" contra "+event.getNodeB().getName());       
+            
+            //si algo cocha contra la caja del enemigo, si es coche paraliza y si es misil vuelve a posicion oculta            
+            else if(cambio && event.getNodeB().getName().equals("CajaE")){
+                cambio=false;                
+                if(event.getNodeA().getName().equals("MisilJ")){
+                    System.out.println("Choco el misil con la caja");
+                    misilJD.posOrigen();
+                    cajaE.posOrigen();
+                }else if(event.getNodeA().getName().equals("Jugador")){
+                    System.out.println("Choco contra el Jugador");
+                }else if(event.getNodeA().getName().equals("Enemigo")){
+                    System.out.println("Choco contra el Enemigo");
+                }
             }
             
         }

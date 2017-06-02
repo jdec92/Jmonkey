@@ -29,7 +29,7 @@ public class ControladorTeclado {
         public void onAnalog(String name, float value, float tpf) {
 
             Vector3f dirFrente = coche.cocheFisico.getPhysicsRotation().getRotationColumn(2);
-            float fuerza = coche.cocheFisico.getMass() * 10f*1.5f;
+            float fuerza = coche.cocheFisico.getMass() * 5f;
 
             if (name.equals("Derecha")) {
                 coche.cocheFisico.applyTorque(new Vector3f(0, -4f, 0));                
@@ -45,17 +45,17 @@ public class ControladorTeclado {
                 //cocheFisico.applyCentralForce(new Vector3f(0,0,fuerza));
                 coche.cocheFisico.applyCentralForce(dirFrente.normalize().mult(-fuerza));
             }                       
-            if (name.equals("Depie")) {
-                misil.enmov=true;                
-                Vector3f pos=new Vector3f(coche.cocheFisico.getPhysicsLocation().x,coche.cocheFisico.getPhysicsLocation().y+3f,coche.cocheFisico.getPhysicsLocation().z);
+            if (name.equals("Dispara")) {
+                misil.lanzar=true;                
+                Vector3f pos=new Vector3f(coche.cocheFisico.getPhysicsLocation().x,coche.cocheFisico.getPhysicsLocation().y+2f,coche.cocheFisico.getPhysicsLocation().z);
                 misil.balaFisica.setPhysicsLocation(pos);
-                /*
+            }
+            if (name.equals("Reset")){
                 coche.cocheFisico.clearForces();
                 Matrix3f mat = new Matrix3f();
                 mat.fromAngleAxis(1, new Vector3f(0, -90, 0));
                 coche.cocheFisico.setPhysicsRotation(mat);
                 coche.cocheFisico.setPhysicsLocation(coche.posIniC);                
-                */
             }
         }
     };   
