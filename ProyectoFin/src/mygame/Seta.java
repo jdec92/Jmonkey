@@ -8,6 +8,7 @@ package mygame;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Spatial;
+import java.util.Random;
 
 /**
  *
@@ -18,8 +19,10 @@ public class Seta {
     RigidBodyControl setaFisico;    
     int id=0;
     Vector3f[] posSetas = new Vector3f[]{
-        new Vector3f(-47, -4, 60f), new Vector3f(-13, -4, -37),
-         new Vector3f(41, -4, 35), new Vector3f(50, -4, 84)};
+        new Vector3f(-47, -4f, 45f),new Vector3f(-25, -4f, -35f),
+        new Vector3f(35, -4f, 85f),new Vector3f(0, -4f, 85),
+        new Vector3f(0, -4f, -35),new Vector3f(-23, -4f, -10),
+        new Vector3f(50, -4f, 35),};
     
     public Seta(Spatial c,String name){
         seta=c;
@@ -35,12 +38,13 @@ public class Seta {
        return posSetas[id];
    }
     
-     public void cambiarPos(){
-       id++;
-       if(id==posSetas.length){
-           id=0;
-       }         
+     public void cambiarPos(int id_otra){
+       Random r=new Random();
+       int num=r.nextInt(posSetas.length);       
+       while(num==id_otra || num==id){
+           num=r.nextInt(posSetas.length);
+       }       
+       id=num;
        setaFisico.setPhysicsLocation(posicionActual());
-       //System.out.println("Cambia pos seta");
    }
 }

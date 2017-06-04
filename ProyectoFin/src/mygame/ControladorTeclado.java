@@ -14,49 +14,34 @@ import com.jme3.math.Vector3f;
  * @author JD
  */
 public class ControladorTeclado {    
-    Coche coche;
-    Coche enem;
-    Arma misil;
+    Coche jug;
+    Coche enem;    
     
-    public ControladorTeclado(Coche obj,Arma m,Coche e){
-        coche=obj;        
-        misil=m;
+    public ControladorTeclado(Coche j,Coche e){
+        jug=j;
         enem=e;
     }
     
     AnalogListener analogListener = new AnalogListener(){
         @Override
         public void onAnalog(String name, float value, float tpf) {
-
-            Vector3f dirFrente = coche.cocheFisico.getPhysicsRotation().getRotationColumn(2);
-            float fuerza = coche.cocheFisico.getMass() * 10f*1.5f;
-
-            if (name.equals("Derecha")) {
-                coche.cocheFisico.applyTorque(new Vector3f(0, -4f, 0));                
+            
+            if (name.equals("CamE")) {
+               enem.cam=true;
+               jug.cam=false;
             }
-            if (name.equals("Izquierda")) {
-                coche.cocheFisico.applyTorque(new Vector3f(0, 4f, 0));
+            if (name.equals("CamJ")){
+                enem.cam=false;
+               jug.cam=true;
             }
-            if (name.equals("Avanzar")) {
-                coche.cocheFisico.applyCentralForce(dirFrente.normalize().mult(fuerza));
-                //System.out.println("Angulo "+dirFrente.toString());
+            if (name.equals("MuteOFF")){
+                enem.cam=false;
+               jug.cam=true;
             }
-            if (name.equals("Atras")) {
-                //cocheFisico.applyCentralForce(new Vector3f(0,0,fuerza));
-                coche.cocheFisico.applyCentralForce(dirFrente.normalize().mult(-fuerza));
-            }                       
-            if (name.equals("Dispara")) {
-                misil.lanzar=true;                
-                Vector3f pos=new Vector3f(coche.cocheFisico.getPhysicsLocation().x,coche.cocheFisico.getPhysicsLocation().y+2f,coche.cocheFisico.getPhysicsLocation().z);
-                misil.balaFisica.setPhysicsLocation(pos);
-            }
-            if (name.equals("Reset")){
-                coche.cocheFisico.clearForces();
-                Matrix3f mat = new Matrix3f();
-                mat.fromAngleAxis(1, new Vector3f(0, -90, 0));
-                coche.cocheFisico.setPhysicsRotation(mat);
-                coche.cocheFisico.setPhysicsLocation(coche.posIniC);                
-            }
+            if (name.equals("MuteON")){
+                enem.cam=false;
+               jug.cam=true;
+            }   
         }
     };   
 }

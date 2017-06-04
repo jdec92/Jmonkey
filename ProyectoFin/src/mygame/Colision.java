@@ -16,15 +16,12 @@ import java.util.Random;
 public class Colision implements PhysicsCollisionListener{
     boolean cambio;
     Coche jugador,enemigo;
-    Ruta obj;
     Arma misilJD,misilED,cajaJ,cajaE;
     Seta seta1,seta2;
-    int tipoA;
     
-    public Colision(Coche cochej,Coche cochee,Ruta r,Arma mjd,Arma med,Arma cj,Arma ce,Seta s1,Seta s2){
+    public Colision(Coche cochej,Coche cochee,Arma mjd,Arma med,Arma cj,Arma ce,Seta s1,Seta s2){
         jugador=cochej;
-        enemigo=cochee;
-        obj=r;
+        enemigo=cochee;        
         misilJD=mjd;
         misilED=med;        
         cajaJ=cj;
@@ -35,46 +32,59 @@ public class Colision implements PhysicsCollisionListener{
     }        
     @Override
     public void collision(PhysicsCollisionEvent event) {
-        //si colision es diferente al suelo
+    //si colision es diferente al suelo
         if(!event.getNodeB().getName().equals("Suelo")){
-            
-            //si el enemigo cocha con la esfera, cambia la posicion de la esfera
+        
+    //Colisiones del Enemigo-------------------------------------------------------------------------------------------------------------
+        //si el enemigo cocha con la esfera, cambia la posicion de la esfera
             if(cambio && event.getNodeB().getName().equals("Bola") && event.getNodeA().getName().equals("Enemigo")){
                 cambio=false;
-                obj.cambiarPos();                
+    //            obj.cambiarPos();                
             }
             
-            //si el enemigo le impacta algún misil, el enemigo se queda parado y el misil va a la posicion oculta
+        //si el enemigo le impacta algún misil, el enemigo se queda parado y el misil va a la posicion oculta
             else if(cambio && event.getNodeA().getName().equals("Enemigo") && event.getNodeB().getName().equals("MisilJ")){
                 cambio=false;                
                 misilJD.posOrigen();
-                enemigo.tiempoParado.reset();                
+                enemigo.penalizacion();
+                System.out.println("MisilJ choco contra Enemigo");
             }
-            
-            //si al jugador le impacta algún misil, el jugador se queda parado y el misil va a la posicion oculta
+    //----------------------------------------------------------------------------------------------------------------------------------
+    //Colisiones del Jugador++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++        
+        //si el jugador le impacta algún misil, el enemigo se queda parado y el misil va a la posicion oculta
             else if(cambio && event.getNodeA().getName().equals("Jugador") && event.getNodeB().getName().equals("MisilE")){
                 cambio=false;                
-                misilED.posOrigen();                    
+                misilED.posOrigen();
+                jugador.penalizacion();
+                System.out.println("MisilE choco contra Jugador");
             }
-            
-            //si alguien colisiona con una seta1 o seta2 tiene que activa el arma y mover la seta
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //SETAS_________________________________________________________________________________
+        //si alguien colisiona con una seta1 o seta2 tiene que activa el arma y mover la seta
             else if(cambio && event.getNodeB().getName().substring(0,4).equals("Seta")){
                 cambio=false;
-                Random r=new Random();
-                tipoA=r.nextInt(2);
-                System.out.println("Tipo de Arma:"+tipoA);
-                if(event.getNodeB().getName().equals("Seta1")){
-                    seta1.cambiarPos();
+                Random r=new Random();          
+                int tipoA=r.nextInt(3);                                
+                if(event.getNodeB().getName().equals("Seta1")){                    
+                    seta1.cambiarPos(seta2.id);
                     if(event.getNodeA().getName().equals("Enemigo")){
                         switch(tipoA){
                             case 0:
                                 if(!cajaE.usar){
-                                misilED.usar=true;
+                                    misilED.usar=true;
+                                    enemigo.tipoA=Coche.tipoArma.Misil;
                                 }
                                 break;
                             case 1:                           
                                 if(!misilED.usar){
                                     cajaE.usar=true;
+                                    enemigo.tipoA=Coche.tipoArma.TNT;
+                                }                                
+                                break;
+                            case 2:                           
+                                if(!misilED.usar && !cajaE.usar){                                    
+                                    enemigo.tipoA=Coche.tipoArma.Turbo;
+                                    enemigo.inicioTurbo();
                                 }                                
                                 break;
                         }
@@ -83,28 +93,44 @@ public class Colision implements PhysicsCollisionListener{
                         switch(tipoA){
                             case 0:
                                 if(!cajaJ.usar){
-                                misilJD.usar=true;
+                                    misilJD.usar=true;
+                                    jugador.tipoA=Coche.tipoArma.Misil;
                                 }
                                 break;
                             case 1:                           
                                 if(!misilJD.usar){
                                     cajaJ.usar=true;
+                                    jugador.tipoA=Coche.tipoArma.TNT;
+                                }                                
+                                break;
+                            case 2:                           
+                                if(!misilJD.usar && !cajaJ.usar){                                    
+                                    jugador.tipoA=Coche.tipoArma.Turbo;
+                                    jugador.inicioTurbo();                                                                                                            
                                 }                                
                                 break;
                         }
                     }
                 }else if(event.getNodeB().getName().equals("Seta2")){
-                    seta2.cambiarPos();
+                    seta2.cambiarPos(seta1.id);
                     if(event.getNodeA().getName().equals("Enemigo")){
                         switch(tipoA){
                             case 0:
                                 if(!cajaE.usar){
-                                misilED.usar=true;
+                                    misilED.usar=true;
+                                    enemigo.tipoA=Coche.tipoArma.Misil;
                                 }
                                 break;
                             case 1:                           
                                 if(!misilED.usar){
                                     cajaE.usar=true;
+                                    enemigo.tipoA=Coche.tipoArma.TNT;
+                                }                                
+                                break;
+                            case 2:                           
+                                if(!misilED.usar && !cajaE.usar){                                    
+                                    enemigo.tipoA=Coche.tipoArma.Turbo;
+                                    enemigo.inicioTurbo();                                                                        
                                 }                                
                                 break;
                         }
@@ -113,21 +139,29 @@ public class Colision implements PhysicsCollisionListener{
                         switch(tipoA){
                             case 0:
                                 if(!cajaJ.usar){
-                                misilJD.usar=true;
+                                    misilJD.usar=true;
+                                    jugador.tipoA=Coche.tipoArma.Misil;
                                 }
                                 break;
                             case 1:                           
                                 if(!misilJD.usar){
                                     cajaJ.usar=true;
+                                    jugador.tipoA=Coche.tipoArma.TNT;
+                                }                                
+                                break;
+                            case 2:                           
+                                 if(!misilJD.usar && !cajaJ.usar){                                    
+                                    jugador.tipoA=Coche.tipoArma.Turbo;
+                                    jugador.inicioTurbo();                                                                        
                                 }                                
                                 break;
                         }
                     }
                 }
-                System.out.println("Arma seleccionada: "+tipoA);
+                //System.out.println("Arma seleccionada: "+tipoA);
             }
-            
-            //si algo cocha contra la caja del enemigo, si es coche paraliza y si es misil vuelve a posicion oculta            
+    //CAJAS_____________________________________________________________
+        //si algo cocha contra la caja del enemigo, si es coche paraliza y si es misil vuelve a posicion oculta            
             else if(cambio && event.getNodeB().getName().equals("CajaE")){
                 cambio=false;                
                 if(event.getNodeA().getName().equals("MisilJ")){
@@ -135,12 +169,32 @@ public class Colision implements PhysicsCollisionListener{
                     misilJD.posOrigen();
                     cajaE.posOrigen();
                 }else if(event.getNodeA().getName().equals("Jugador")){
+                    cajaE.posOrigen();
+                    jugador.penalizacion();
                     System.out.println("Choco contra el Jugador");
                 }else if(event.getNodeA().getName().equals("Enemigo")){
+                    cajaE.posOrigen();
+                    enemigo.penalizacion();
                     System.out.println("Choco contra el Enemigo");
                 }
             }
-            
+        //si algo cocha contra la caja del jugador, si es coche paraliza y si es misil vuelve a posicion oculta            
+            else if(cambio && event.getNodeB().getName().equals("CajaJ")){
+                cambio=false;                
+                if(event.getNodeA().getName().equals("MisilE")){
+                    System.out.println("Choco el misil con la caja");
+                    misilJD.posOrigen();
+                    cajaE.posOrigen();
+                }else if(event.getNodeA().getName().equals("Jugador")){
+                    cajaJ.posOrigen();
+                    jugador.penalizacion();
+                    System.out.println("Choco contra el Jugador");
+                }else if(event.getNodeA().getName().equals("Enemigo")){
+                    cajaJ.posOrigen();
+                    enemigo.penalizacion();
+                    System.out.println("Choco contra el Enemigo");
+                }
+            }
         }
         //si no cocha con el suelo
 //        System.out.println("Colision: "+event.getNodeA().getName()+" contra "+event.getNodeB().getName());       
