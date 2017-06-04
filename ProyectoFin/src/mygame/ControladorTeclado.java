@@ -14,33 +14,31 @@ import com.jme3.math.Vector3f;
  * @author JD
  */
 public class ControladorTeclado {    
-    Coche jug;
-    Coche enem;    
+    Coche crash;
+    Coche mario;    
     
-    public ControladorTeclado(Coche j,Coche e){
-        jug=j;
-        enem=e;
+    public ControladorTeclado(Coche c,Coche m){
+        crash=c;
+        mario=m;
     }
     
     AnalogListener analogListener = new AnalogListener(){
         @Override
         public void onAnalog(String name, float value, float tpf) {
             
-            if (name.equals("CamE")) {
-               enem.cam=true;
-               jug.cam=false;
+            if (name.equals("CamM")) {
+               mario.cam=true;
+               crash.cam=false;
             }
-            if (name.equals("CamJ")){
-                enem.cam=false;
-               jug.cam=true;
+            if (name.equals("CamC")){
+               mario.cam=false;
+               crash.cam=true;
             }
             if (name.equals("MuteOFF")){
-                enem.cam=false;
-               jug.cam=true;
+               
             }
             if (name.equals("MuteON")){
-                enem.cam=false;
-               jug.cam=true;
+               
             }   
         }
     };   

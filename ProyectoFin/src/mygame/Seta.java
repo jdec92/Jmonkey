@@ -19,10 +19,12 @@ public class Seta {
     RigidBodyControl setaFisico;    
     int id=0;
     Vector3f[] posSetas = new Vector3f[]{
-        new Vector3f(-47, -4f, 45f),new Vector3f(-25, -4f, -35f),
-        new Vector3f(35, -4f, 85f),new Vector3f(0, -4f, 85),
-        new Vector3f(0, -4f, -35),new Vector3f(-23, -4f, -10),
-        new Vector3f(50, -4f, 35),};
+        new Vector3f(-47, -4f, 45f),
+        new Vector3f(-25, -4f, -35f),        
+        new Vector3f(35, -4f, 85f),
+        new Vector3f(0, -4f, 85),
+        new Vector3f(25, -4f, 0),
+        new Vector3f(85, -4f, 60),};
     
     public Seta(Spatial c,String name){
         seta=c;
@@ -31,7 +33,8 @@ public class Seta {
     }
     
     public void propiedades(){
-        setaFisico.setGravity(new Vector3f(0,0,0));
+        setaFisico.setGravity(Vector3f.ZERO);
+        //setaFisico.setFriction(1f);
     }
     
     public Vector3f posicionActual(){

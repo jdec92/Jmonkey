@@ -42,28 +42,9 @@ public class Coche{
     Timer tiempoParado=new Timer();
     Timer tiempoTurbo=new Timer();
     float velocidad=5f;        
-    tipoArma tipoA;
+    tipoArma tipoA;    
     boolean cam;
-          
-    
-    //coche normal
-    public Coche(String name){        
-        Box box=new Box(0.6f,0.6f,1f);
-        geomBox=new Geometry(name, box);
-        cocheFisico=new RigidBodyControl(1f);                
-        cam=false;        
-    }
-    
-    public Coche(Spatial c,String name){
-        coche=c;
-        coche.center();
-        coche.setName(name);
-        cocheFisico= new RigidBodyControl(1f);                                        
-        cam=false;        
-    }
-    
-    //coche con ruta    
-    
+                           
     public Coche(String name,Ruta obj){
         objetivo=obj;
         Box box=new Box(0.6f,0.6f,1f);
@@ -108,14 +89,12 @@ public class Coche{
                 tiempoTurbo.cancel();            
                 velocidad=5f;            
             }
-        }
-        
-    }
-    
+        }        
+    }    
 
-    public void avanzar(float ds1,float ds2,Vector3f pos1,Vector3f pos2){                                        
-        
+    public void avanzar(float ds1,float ds2,Vector3f pos1,Vector3f pos2){                                                
         if(segundos>5){                                               
+                //tiempoParado.cancel();
                 turbo();                
                 if(ds1<8f){
                     coche.lookAt(pos1, Vector3f.UNIT_Y);
@@ -124,7 +103,6 @@ public class Coche{
                 }else{
                     coche.lookAt(objetivo.objetivoGeom.getLocalTranslation(), Vector3f.UNIT_Y);                                
                 }
-
                 cocheFisico.setPhysicsRotation(coche.getLocalRotation());
                 Vector3f dirFrente= cocheFisico.getPhysicsRotation().getRotationColumn(2);            
                 cocheFisico.setLinearVelocity(new Vector3f(-velocidad*dirFrente.normalize().x,-velocidad*dirFrente.normalize().y,-velocidad*dirFrente.normalize().z));                  
@@ -134,22 +112,17 @@ public class Coche{
     public void esquivar(CollisionResults detec,float iz,float dr){                
         Matrix3f m = new Matrix3f();
         Vector3f direccion=cocheFisico.getPhysicsRotation().getRotationColumn(2);
-        if(detec.size()>0){
-            if(iz>dr){
-                //fuerza para izquierda                            
-                m.fromAngleAxis((float) (Math.PI/2),Vector3f.UNIT_Y);                            
-                System.out.println("Girando a la izquierda");
-            }else{
-                //fuerza para derecha
-                m.fromAngleAxis((float) (Math.PI/2),Vector3f.UNIT_Y);            
-                System.out.println("Girando a la derecha");
+        if(detec.size()>0){            
+            if(iz>dr){                  
+                m.fromAngleAxis((float) (Math.PI/2),Vector3f.UNIT_Y);                                            
+                System.out.println("Desplazando "+iz+" izquierda "+coche.getName());
+            }else{                
+                m.fromAngleAxis((float) (Math.PI/2),Vector3f.UNIT_Y);                                            
+                System.out.println("Desplazando "+dr+" derecha "+coche.getName());
             }
             direccion=m.mult(direccion);
-            cocheFisico.setLinearVelocity(direccion.mult(velocidad*10f));
-            //cocheFisico.applyImpulse(direccion.mult(fuerza), cocheFisico.getPhysicsLocation());
-            //System.out.println("Aplicando fuerza");
+            cocheFisico.setLinearVelocity(direccion.mult(velocidad*20f));            
         }
-        
     }
             
     public Ray rayoFrente(){        
@@ -161,7 +134,7 @@ public class Coche{
     public Ray rayoObstaculo(){        
         Vector3f direccion=cocheFisico.getPhysicsRotation().getRotationColumn(2);
         Ray rayo= new Ray (new Vector3f (cocheFisico.getPhysicsLocation().x, cocheFisico.getPhysicsLocation().y+0.1f, cocheFisico.getPhysicsLocation().z),direccion);            
-        rayo.setLimit(6f);
+        rayo.setLimit(4f);
         return rayo;
     }
 

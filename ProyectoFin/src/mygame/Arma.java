@@ -27,10 +27,8 @@ public class Arma {
     boolean lanzar=false;
     
 
-    public Arma(String name, Coche c) {
-        
-        obj = c;
-        Box bal=new Box(0.5f,0.5f,0.5f);
+    public Arma(String name) {                
+        Box bal=new Box(0.7f,0.7f,0.7f);
         balaG = new Geometry(name, bal);
         balaFisica = new RigidBodyControl(1000f);
         posIniC=new Vector3f(100f, 100f, 0);
@@ -57,25 +55,20 @@ public class Arma {
             balaFisica.setPhysicsLocation(posi);                        
             lanzar=true;
         }
-        avanzarMD();        
-        
-        
+        avanzarMD();                
     }
 
-    public void defensa(float s1,float s2,float dm, Vector3f posM,Vector3f posC) {
-        
+    public void defensa(float s1,float s2,float dm, Vector3f posCM,Vector3f posCS) {        
         if (dm<5f && usar) {                        
             balaFisica.setGravity(Vector3f.UNIT_Y);
-            balaFisica.setPhysicsLocation(posM);
+            balaFisica.setPhysicsLocation(posCM);
             usar=false;
         }else if(s1<8f && usar || s2<8f && usar){
             //System.out.println("Aqui entra"+s1+" usar:"+usar);
             balaFisica.setGravity(Vector3f.UNIT_Y);
-            balaFisica.setPhysicsLocation(posC);
+            balaFisica.setPhysicsLocation(posCS);
             usar=false;
-        }       
-        
-        
+        }                       
     }
     
     public void avanzarMD() {
@@ -94,5 +87,28 @@ public class Arma {
         balaFisica.setLinearVelocity(Vector3f.ZERO);
         balaFisica.setGravity(Vector3f.ZERO);
         balaFisica.setPhysicsLocation(posIniC);        
+    }
+    
+    public Vector3f orientarCaja(Vector3f posCoche,int id){
+        Vector3f v;
+        float dist=2.5f;
+        switch(id){
+            case 0:
+                v=new Vector3f(posCoche.x,posCoche.y,posCoche.z-dist);
+                break;
+            case 1:
+                v=new Vector3f(posCoche.x-dist,posCoche.y,posCoche.z);
+                break;
+            case 2:
+                v=new Vector3f(posCoche.x,posCoche.y,posCoche.z+dist);
+                break;            
+            case 4:
+                v=new Vector3f(posCoche.x,posCoche.y,posCoche.z+dist);
+                break;
+            default:
+                v=new Vector3f(posCoche.x+dist,posCoche.y,posCoche.z);
+                break;                
+        }
+        return v;
     }
 }
