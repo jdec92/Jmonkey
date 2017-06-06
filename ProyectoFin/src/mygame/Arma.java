@@ -83,7 +83,8 @@ public class Arma {
     }
     
     public void posOrigen() {
-        lanzar = false;        
+        lanzar = false;     
+        balaFisica.clearForces();
         balaFisica.setLinearVelocity(Vector3f.ZERO);
         balaFisica.setGravity(Vector3f.ZERO);
         balaFisica.setPhysicsLocation(posIniC);        
@@ -94,19 +95,19 @@ public class Arma {
         float dist=2.5f;
         switch(id){
             case 0:
-                v=new Vector3f(posCoche.x,posCoche.y,posCoche.z-dist);
+                v=new Vector3f(posCoche.x,posCoche.y+0.5f,posCoche.z-dist);
                 break;
             case 1:
-                v=new Vector3f(posCoche.x-dist,posCoche.y,posCoche.z);
+                v=new Vector3f(posCoche.x-dist,posCoche.y+0.5f,posCoche.z);
                 break;
             case 2:
-                v=new Vector3f(posCoche.x,posCoche.y,posCoche.z+dist);
+                v=new Vector3f(posCoche.x,posCoche.y+0.5f,posCoche.z+dist);
                 break;            
             case 4:
-                v=new Vector3f(posCoche.x,posCoche.y,posCoche.z+dist);
+                v=new Vector3f(posCoche.x,posCoche.y+0.5f,posCoche.z+dist);
                 break;
             default:
-                v=new Vector3f(posCoche.x+dist,posCoche.y,posCoche.z);
+                v=new Vector3f(posCoche.x+dist,posCoche.y+0.5f,posCoche.z);
                 break;                
         }
         return v;

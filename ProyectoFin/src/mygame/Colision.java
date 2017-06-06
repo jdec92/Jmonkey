@@ -7,6 +7,8 @@ package mygame;
 
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionListener;
+import com.jme3.math.Vector3f;
+import com.oracle.xmlns.internal.webservices.jaxws_databinding.SoapBindingParameterStyle;
 import java.util.Random;
 
 /**
@@ -58,7 +60,7 @@ public class Colision implements PhysicsCollisionListener{
             else if(cambio && event.getNodeB().getName().substring(0,4).equals("Seta")){
                 cambio=false;
                 Random r=new Random();          
-                int tipoA=r.nextInt(3);                                
+                int tipoA=1;                                
                 if(event.getNodeB().getName().equals("Seta1")){                    
                     seta1.cambiarPos(seta2.id);
     //Seta1 cogida por CRASH
@@ -198,9 +200,24 @@ public class Colision implements PhysicsCollisionListener{
                     System.out.println(event.getNodeB().getName()+" choco contra "+event.getNodeA().getName());
                     
                 }
+            }
+            
+            else if(cambio && event.getNodeA().getName().equals("Mario") && event.getNodeB().getName().equals("Bola_Esquivo")){
+                    cambio=false;
+                    mario.esquivar=false;            
+                    mario.bolaFisica.setPhysicsLocation(new Vector3f(0,-100f,0));
+                    
             }        
+            
+            else if(cambio && event.getNodeA().getName().equals("Crash") && event.getNodeB().getName().equals("Bola_Esquivo")){
+                    cambio=false;
+                    crash.esquivar=false;            
+                    crash.bolaFisica.setPhysicsLocation(new Vector3f(0,-100f,0));
+                    
+            }
         //si no cocha con el suelo
-        //System.out.println("Nodo A: "+event.getNodeA().getName()+" contra "+event.getNodeB().getName());       
+        
+//        System.out.println("Nodo A: "+event.getNodeA().getName()+" contra "+event.getNodeB().getName());       
         }
     }
     

@@ -87,12 +87,14 @@ public class Main extends SimpleApplication {
     //crear Jugador
         crash=new Coche(assetManager.loadModel("Models/Crash_Kart/Crash_Kart.j3o"),"Crash",nav);
         integrarObjeto(crash.coche, crash.cocheFisico, estadosFisicos, crash.posIniC,0);
+        integrarObjeto(crash.geomBola,crash.bolaFisica, estadosFisicos,null,"");
         crash.aplicarFisica();        
         crash.cam=true;
         
     //crear enemigo                
         mario=new Coche(assetManager.loadModel("Models/Mario/Kart_Mario.j3o"), "Mario", nav2);
         integrarObjeto(mario.coche, mario.cocheFisico, estadosFisicos, mario.posIniC,1);
+        integrarObjeto(mario.geomBola,mario.bolaFisica, estadosFisicos,null,"");
         mario.aplicarFisica();                            
                 
     //crear armas Jugador                
@@ -103,7 +105,7 @@ public class Main extends SimpleApplication {
             //caja Jugador
         cajaCrash = new Arma("CajaCrash");
         integrarObjeto(cajaCrash.balaG, cajaCrash.balaFisica, estadosFisicos, cajaCrash.posIniC,"tnt");        
-        cajaCrash.balaFisica.setGravity(Vector3f.ZERO);
+        
         
     //crear Armas Enemigo                
             //misil dirigido
@@ -113,7 +115,7 @@ public class Main extends SimpleApplication {
             //caja Enemigo
         cajaMario = new Arma("CajaMario");
         integrarObjeto(cajaMario.balaG, cajaMario.balaFisica, estadosFisicos, cajaMario.posIniC,"tnt");        
-        cajaMario.balaFisica.setGravity(Vector3f.ZERO);            
+        //cajaMario.balaFisica.setGravity(Vector3f.ZERO);            
                         
     //crear setas        
             seta1 =new Seta(assetManager.loadModel("Models/Seta/untitled.j3o"),"Seta1");                                                
@@ -179,11 +181,15 @@ public class Main extends SimpleApplication {
         
     //Detecta enemigo un obstaculo
    
-        CollisionResults detecta_ObtCrash = new CollisionResults();
-        mario.coche.collideWith(crash.rayoObstaculo(),detecta_ObtCrash);
-        cajaMario.balaG.collideWith(crash.rayoObstaculo(),detecta_ObtCrash);
-        cajaCrash.balaG.collideWith(crash.rayoObstaculo(), detecta_ObtCrash);
-        crash.esquivar(detecta_ObtCrash,distancia_CrashI,distancia_CrashD);                
+        CollisionResults detecta_Crash_M = new CollisionResults();        
+        mario.coche.collideWith(crash.rayoObstaculo(),detecta_Crash_M);
+        CollisionResults detecta_Crash_CC = new CollisionResults();
+        cajaCrash.balaG.collideWith(crash.rayoObstaculo(), detecta_Crash_CC);
+        CollisionResults detecta_Crash_CM = new CollisionResults();
+        cajaMario.balaG.collideWith(crash.rayoObstaculo(), detecta_Crash_CM);
+        
+        crash.esquivo(detecta_Crash_M,detecta_Crash_CC,detecta_Crash_CM,posMario,cajaCrash.balaG.getLocalTranslation(),
+                                                cajaMario.balaG.getLocalTranslation(),distancia_CrashI,distancia_CrashD);        
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++        
         
 //Rayos coche Mario-------------------------------------------------------------------------------------------------------------
@@ -207,12 +213,17 @@ public class Main extends SimpleApplication {
         }                
         
     //Detecta enemigo un obstaculo
-        CollisionResults detecta_ObtMario = new CollisionResults();
-        crash.coche.collideWith(mario.rayoObstaculo(),detecta_ObtMario);
-        cajaMario.balaG.collideWith(mario.rayoObstaculo(), detecta_ObtMario);
-        cajaCrash.balaG.collideWith(mario.rayoObstaculo(), detecta_ObtMario);
-                
-        mario.esquivar(detecta_ObtMario,distancia_marioI,distancia_marioD);
+        CollisionResults detecta_Mario_C = new CollisionResults();        
+        crash.coche.collideWith(mario.rayoObstaculo(),detecta_Mario_C);
+        CollisionResults detecta_Mario_CC = new CollisionResults();
+        cajaCrash.balaG.collideWith(mario.rayoObstaculo(), detecta_Mario_CC);
+        CollisionResults detecta_Mario_CM = new CollisionResults();
+        cajaMario.balaG.collideWith(mario.rayoObstaculo(), detecta_Mario_CM);
+        
+        mario.esquivo(detecta_Mario_C,detecta_Mario_CC,detecta_Mario_CM,posCrash,cajaCrash.balaG.getLocalTranslation(),
+                                                cajaMario.balaG.getLocalTranslation(),distancia_marioI,distancia_marioD);        
+        
+        
 //--------------------------------------------------------------------------------------------------------------------------------------
 
     //Lanzar caja para defensa Crash
@@ -247,6 +258,7 @@ public class Main extends SimpleApplication {
             nav2.cambiarPos(distancia_NavMario);
             mario.avanzar(seta1_Mario,seta2_Mario,seta1.seta.getLocalTranslation(),seta2.seta.getLocalTranslation());                   
         }
+                
         
     //actualizador semaforo para Colisiones.
         if(!colision.cambio){            
@@ -312,7 +324,7 @@ public class Main extends SimpleApplication {
             posicion = Vector3f.ZERO;
         }
         if (giro == 1) {
-            posicion=new Vector3f(posicion.x-4f,posicion.y,posicion.z-3f);            
+            posicion=new Vector3f(posicion.x-4f,posicion.y,posicion.z-5f);            
         }
         objetoFisico.setPhysicsLocation(posicion);
     }
@@ -331,7 +343,7 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(objetoVisual);                                               //integración en el mundo visual 
         objetoVisual.addControl(objetoFisico );                                          //Asociación  objeto visual-fisico
         estadosFisicos.getPhysicsSpace().add( objetoFisico );                  //integración en el mundo físico
-        if (posicion==null)   posicion = Vector3f.ZERO;
+        if (posicion==null)   posicion =new Vector3f(0,-100,0);
        objetoFisico.setPhysicsLocation(posicion);
     }
     
