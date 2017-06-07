@@ -33,8 +33,7 @@ public class Seta {
     }
     
     public void propiedades(){
-        setaFisico.setGravity(Vector3f.ZERO);
-        //setaFisico.setFriction(1f);
+        setaFisico.setGravity(Vector3f.ZERO);        
     }
     
     public Vector3f posicionActual(){
@@ -48,6 +47,7 @@ public class Seta {
            num=r.nextInt(posSetas.length);
        }       
        id=num;
+       setaFisico.setLinearVelocity(Vector3f.ZERO);
        setaFisico.setPhysicsLocation(posicionActual());
    }
 }

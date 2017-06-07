@@ -24,7 +24,7 @@ public class Main extends SimpleApplication {
     
     private BulletAppState estadosFisicos;
     private Coche mario,crash;
-    private Ruta nav,nav2;
+    private Ruta nav,nav2,navMC,navMM;
     private Arma misilCrash,misilMario,cajaMario,cajaCrash;
     private Seta seta1,seta2;
     private Spatial suelo;    
@@ -50,12 +50,7 @@ public class Main extends SimpleApplication {
 
         setDisplayFps(false);
         setDisplayStatView(false);                
-        flyCam.setEnabled(false);
-        
-        this.flyCam.setMoveSpeed(this.flyCam.getMoveSpeed()*10f);
-        viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
-        cam.setLocation(new Vector3f(0, 30f, 0f));
-        cam.lookAt(new Vector3f(0, 0, 0), Vector3f.UNIT_Y);
+        flyCam.setEnabled(false);                        
     
     //luz direccional
         DirectionalLight sun = new DirectionalLight();
@@ -84,48 +79,56 @@ public class Main extends SimpleApplication {
         integrarObjeto(nav2.objetivoGeom, nav2.objFisico, estadosFisicos, nav2.posicionActual(), "");
         nav2.aplicarFisica();
         
+        navMC=new Ruta(2);
+        integrarObjeto(navMC.objetivoGeom, navMC.objFisico, estadosFisicos, navMC.posicionActual(), "");
+        navMC.aplicarFisica();
+        
+        navMM=new Ruta(3);
+        integrarObjeto(navMM.objetivoGeom, navMM.objFisico, estadosFisicos, navMM.posicionActual(), "");
+        navMM.aplicarFisica();
+        
     //crear Jugador
         crash=new Coche(assetManager.loadModel("Models/Crash_Kart/Crash_Kart.j3o"),"Crash",nav);
-        integrarObjeto(crash.coche, crash.cocheFisico, estadosFisicos, crash.posIniC,0);
-        integrarObjeto(crash.geomBola,crash.bolaFisica, estadosFisicos,null,"");
+        integrarObjeto(crash.coche, crash.cocheFisico, estadosFisicos, crash.posIniC[0],0);
+        integrarObjeto(crash.geomBola,crash.bolaFisica, estadosFisicos,crash.posIniC[2],"");
         crash.aplicarFisica();        
         crash.cam=true;
         
     //crear enemigo                
         mario=new Coche(assetManager.loadModel("Models/Mario/Kart_Mario.j3o"), "Mario", nav2);
-        integrarObjeto(mario.coche, mario.cocheFisico, estadosFisicos, mario.posIniC,1);
-        integrarObjeto(mario.geomBola,mario.bolaFisica, estadosFisicos,null,"");
+        integrarObjeto(mario.coche, mario.cocheFisico, estadosFisicos, mario.posIniC[1],0);
+        integrarObjeto(mario.geomBola,mario.bolaFisica, estadosFisicos,mario.posIniC[3],"");
         mario.aplicarFisica();                            
                 
     //crear armas Jugador                
             //misil dirigido
-        misilCrash = new Arma(assetManager.loadModel("Models/misil2/AGM-114HellFire.j3o"),"MisilCrash",mario);
-        integrarObjeto(misilCrash.bala,misilCrash.balaFisica,estadosFisicos,misilCrash.posIniC, 0);
-        misilCrash.aplicarFisica();        
+        misilCrash = new Arma(assetManager.loadModel("Models/misil2/AGM-114HellFire.j3o"),"MisilCrash",0,mario,navMC);
+        integrarObjeto(misilCrash.bala,misilCrash.balaFisica,estadosFisicos,misilCrash.posIniC[0], 0);
+        misilCrash.aplicarFisicaM();        
             //caja Jugador
-        cajaCrash = new Arma("CajaCrash");
-        integrarObjeto(cajaCrash.balaG, cajaCrash.balaFisica, estadosFisicos, cajaCrash.posIniC,"tnt");        
-        
+        cajaCrash = new Arma("CajaCrash",0);
+        integrarObjeto(cajaCrash.balaG, cajaCrash.balaFisica, estadosFisicos, cajaCrash.posIniC[0],"tnt");        
+        cajaCrash.aplicarFisicaC();
         
     //crear Armas Enemigo                
             //misil dirigido
-        misilMario = new Arma(assetManager.loadModel("Models/misil2/AGM-114HellFire.j3o"),"MisilMario",crash);
-        integrarObjeto(misilMario.bala,misilMario.balaFisica,estadosFisicos,misilMario.posIniC, 0);
-        misilMario.aplicarFisica();        
+        misilMario = new Arma(assetManager.loadModel("Models/misil2/AGM-114HellFire.j3o"),"MisilMario",1,crash,navMM);
+        integrarObjeto(misilMario.bala,misilMario.balaFisica,estadosFisicos,misilMario.posIniC[1], 0);
+        misilMario.aplicarFisicaM();        
             //caja Enemigo
-        cajaMario = new Arma("CajaMario");
-        integrarObjeto(cajaMario.balaG, cajaMario.balaFisica, estadosFisicos, cajaMario.posIniC,"tnt");        
-        //cajaMario.balaFisica.setGravity(Vector3f.ZERO);            
+        cajaMario = new Arma("CajaMario",1);
+        integrarObjeto(cajaMario.balaG, cajaMario.balaFisica, estadosFisicos, cajaMario.posIniC[1],"tnt");        
+        cajaMario.aplicarFisicaC();
                         
     //crear setas        
-            seta1 =new Seta(assetManager.loadModel("Models/Seta/untitled.j3o"),"Seta1");                                                
-            integrarObjeto(seta1.seta, seta1.setaFisico, estadosFisicos, seta1.posicionActual(),0);
-            seta1.propiedades();
+        seta1 =new Seta(assetManager.loadModel("Models/Seta/untitled.j3o"),"Seta1");                                                
+        integrarObjeto(seta1.seta, seta1.setaFisico, estadosFisicos, seta1.posicionActual(),0);
+        seta1.propiedades();
 
-            seta2 =new Seta(assetManager.loadModel("Models/Seta/untitled.j3o"),"Seta2");              
-            integrarObjeto(seta2.seta, seta2.setaFisico, estadosFisicos, seta2.posicionActual(), 0);            
-            seta2.cambiarPos(0);
-            seta2.propiedades();
+        seta2 =new Seta(assetManager.loadModel("Models/Seta/untitled.j3o"),"Seta2");              
+        integrarObjeto(seta2.seta, seta2.setaFisico, estadosFisicos, seta2.posicionActual(), 0);            
+        seta2.cambiarPos(0);
+        seta2.propiedades();
                 
     //crear colision    
         colision=new Colision(crash,mario,misilCrash,misilMario,cajaCrash,cajaMario,seta1,seta2);
@@ -142,25 +145,22 @@ public class Main extends SimpleApplication {
 
        
     //posiciones de los coches
-        Vector3f posMario= mario.cocheFisico.getPhysicsLocation();
-        Vector3f dirMario= mario.cocheFisico.getPhysicsRotation().getRotationColumn(2).normalize();
-        Vector3f posCrash= crash.cocheFisico.getPhysicsLocation();
-        Vector3f dirCrash= crash.cocheFisico.getPhysicsRotation().getRotationColumn(2).normalize();        
+        Vector3f posMario= mario.cocheFisico.getPhysicsLocation();        
+        Vector3f posCrash= crash.cocheFisico.getPhysicsLocation();        
         
    //posicion de la camara______________________________________________________       
-        Vector3f camP=posCrash;
-        Vector3f dirC=dirCrash;
+        Vector3f camP=posCrash;        
+        Vector3f parteTrasera = posicionCamara(camP, nav.id);
         if(mario.cam){
-            camP=posMario;
-            dirC=dirMario;
-        }
-        Vector3f parteTrasera = new Vector3f( camP.x-15*dirC.x, camP.y-3f*dirC.y+10f , camP.z - 15f*dirC.z );
-        Vector3f parteDelantera= new Vector3f( camP.x+dirC.x, camP.y+dirC.y, camP.z + dirC.z );                                
+            camP=posMario;            
+            parteTrasera = posicionCamara(camP, nav2.id);
+        }                                                
         cam.setLocation( parteTrasera );
-        cam.lookAt( parteDelantera, Vector3f.UNIT_Y);
-                                        
+        cam.lookAt( camP, Vector3f.UNIT_Y);
+    
+       
 //Rayos coche Crash+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
-    //Detecta si pasa delante del enemigo el jugador y dispara
+    //Detecta si pasa delante del enemigo el jugador y dispara misil
         CollisionResults detecta_Mario = new CollisionResults();
         mario.coche.collideWith(crash.rayoFrente(), detecta_Mario);        
         misilCrash.dectector(detecta_Mario,posCrash);
@@ -247,6 +247,18 @@ public class Main extends SimpleApplication {
         Vector3f pos_CMario2= cajaMario.orientarCaja(posMario,nav2.id);
         cajaMario.defensa(seta1_Mario,seta2_Mario,misilCrash_mario,pos_CMario, pos_CMario2);                
        
+    //Lanzar caja al tener a distancia las seta
+        float distancia_NavMC = misilCrash.balaFisica.getPhysicsLocation().distance(navMC.objFisico.getPhysicsLocation());
+        float distancia_MC_Mario=misilCrash.balaFisica.getPhysicsLocation().distance(mario.coche.getLocalTranslation());
+        navMC.cambiarPos(distancia_NavMC);
+        misilCrash.lanzar(seta1_Crash,seta2_Crash,distancia_MC_Mario,nav.id,posCrash);
+        
+        float distancia_NavMM = misilMario.balaFisica.getPhysicsLocation().distance(navMM.objFisico.getPhysicsLocation());
+        float distancia_MM_Crash=misilMario.balaFisica.getPhysicsLocation().distance(crash.coche.getLocalTranslation());
+        navMM.cambiarPos(distancia_NavMM);
+        misilMario.lanzar(seta1_Mario,seta2_Mario,distancia_MM_Crash,nav2.id,posMario);
+        
+        
         if(!cargando){
     //Navegacion Jugador    
             float distancia_NavCrash = crash.cocheFisico.getPhysicsLocation().distance(nav.objFisico.getPhysicsLocation());
@@ -319,13 +331,7 @@ public class Main extends SimpleApplication {
     public void integrarObjeto(Spatial objetoVisual, RigidBodyControl objetoFisico, BulletAppState estadosFisicos, Vector3f posicion, int giro) {
         rootNode.attachChild(objetoVisual);                                               //integración en el mundo visual 
         objetoVisual.addControl(objetoFisico);                                          //Asociación  objeto visual-fisico
-        estadosFisicos.getPhysicsSpace().add(objetoFisico);                  //integración en el mundo físico
-        if (posicion == null) {
-            posicion = Vector3f.ZERO;
-        }
-        if (giro == 1) {
-            posicion=new Vector3f(posicion.x-4f,posicion.y,posicion.z-5f);            
-        }
+        estadosFisicos.getPhysicsSpace().add(objetoFisico);                  //integración en el mundo físico        
         objetoFisico.setPhysicsLocation(posicion);
     }
 
@@ -337,14 +343,36 @@ public class Main extends SimpleApplication {
             material = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");  
             material.setBoolean("UseMaterialColors", true);
             material.setColor("Diffuse", new ColorRGBA(0.7f, (float) Math.random(), 0.5f, 1f));  
-        }
-        
+        }        
         objetoVisual.setMaterial(material);    
         rootNode.attachChild(objetoVisual);                                               //integración en el mundo visual 
         objetoVisual.addControl(objetoFisico );                                          //Asociación  objeto visual-fisico
-        estadosFisicos.getPhysicsSpace().add( objetoFisico );                  //integración en el mundo físico
-        if (posicion==null)   posicion =new Vector3f(0,-100,0);
+        estadosFisicos.getPhysicsSpace().add( objetoFisico );                  //integración en el mundo físico        
        objetoFisico.setPhysicsLocation(posicion);
+    }
+    
+    public Vector3f posicionCamara(Vector3f pos,int id){    
+        Vector3f v=pos;
+        float dist=15f;
+        float altura=10f;
+        switch(id){
+            case 0:
+                v=new Vector3f(v.x,v.y+altura,v.z-dist);
+                break;
+            case 1:
+                v=new Vector3f(v.x-dist,v.y+altura,v.z);
+                break;
+            case 2:
+                v=new Vector3f(v.x,v.y+altura,v.z+dist);
+                break;            
+            case 4:
+                v=new Vector3f(v.x,v.y+altura,v.z+dist);
+                break;
+            default:
+                v=new Vector3f(v.x+dist,v.y+altura,v.z);
+                break;                
+        }
+        return v;
     }
     
 }

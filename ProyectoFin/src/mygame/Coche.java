@@ -38,14 +38,14 @@ public class Coche{
     RigidBodyControl cocheFisico,bolaFisica;      
     Geometry geomBola;    
     Spatial coche;    
-    Vector3f posIniC = new Vector3f(-46, -4.5f, 8.4f);
+    Vector3f[] posIniC = new Vector3f[]{new Vector3f(-46, -4.5f, 4f),new Vector3f(-50, -4.5f, 6f),new Vector3f(0,4.5f,0),new Vector3f(0,4.5f,10f)};
     Timer tiempoParado=new Timer();
     Timer tiempoTurbo=new Timer();
     float velocidad=5f;        
     tipoArma tipoA;    
-    boolean cam,esquivar;
+    boolean cam,esquivar;  
                                    
-    public Coche(Spatial c,String name,Ruta obj){
+    public Coche(Spatial c,String name,Ruta obj){        
         objetivo=obj;
         coche=c;               
         coche.setName(name);             
@@ -76,41 +76,41 @@ public class Coche{
         turboseg=0;        
         tiempoTurbo=new Timer();
         tiempoTurbo.schedule(new Contador2(),0,1000);        
+        velocidad=10f;
     }
     
-    public void turbo(){
-        if(turboseg<4){                       
-            velocidad=10f;                                  
-        }else{
-            if(velocidad==10){
+    public void turbo(){        
+        if(turboseg>4){ 
+            if(tipoA==tipoArma.Turbo){
                 tipoA=tipoArma.OFF;
-                tiempoTurbo.cancel();            
-                velocidad=5f;            
             }
+            tiempoTurbo.cancel();            
+            velocidad=5f;            
         }        
     }    
 
     public void avanzar(float ds1,float ds2,Vector3f pos1,Vector3f pos2){                                                
         if(segundos>5){                                               
-                //tiempoParado.cancel();         
-                turbo();                
-                if(ds1<8f){
-                    coche.lookAt(pos1, Vector3f.UNIT_Y);
-                }else if(ds2<8f){
-                    coche.lookAt(pos2, Vector3f.UNIT_Y);
-                }else if(esquivar){
-                    coche.lookAt(geomBola.getLocalTranslation(), Vector3f.UNIT_Y);
-                }else{
-                    coche.lookAt(objetivo.objetivoGeom.getLocalTranslation(), Vector3f.UNIT_Y);                                
-                }
-                cocheFisico.setPhysicsRotation(coche.getLocalRotation());
-                Vector3f dirFrente= cocheFisico.getPhysicsRotation().getRotationColumn(2);            
-                cocheFisico.setLinearVelocity(new Vector3f(-velocidad*dirFrente.normalize().x,-velocidad*dirFrente.normalize().y,-velocidad*dirFrente.normalize().z));                  
+            //tiempoParado.cancel();         
+            turbo();                
+            if(ds1<8f){
+                coche.lookAt(pos1, Vector3f.UNIT_Y);
+            }else if(ds2<8f){
+                coche.lookAt(pos2, Vector3f.UNIT_Y);
+            }else if(esquivar){
+                coche.lookAt(geomBola.getLocalTranslation(), Vector3f.UNIT_Y);
+            }else{
+                coche.lookAt(objetivo.objetivoGeom.getLocalTranslation(), Vector3f.UNIT_Y);                                
+            }
+            
+            cocheFisico.setPhysicsRotation(coche.getLocalRotation());
+            Vector3f dirFrente= cocheFisico.getPhysicsRotation().getRotationColumn(2);            
+            cocheFisico.setLinearVelocity(new Vector3f(-velocidad*dirFrente.normalize().x,-velocidad*dirFrente.normalize().y,-velocidad*dirFrente.normalize().z));                  
         }
     }
         
     public void esquivo(CollisionResults detecC,CollisionResults detecCC,CollisionResults detecCM,Vector3f posC,Vector3f posCC,Vector3f posCM,float dI,float dD){                              
-        Vector3f v=null;
+       Vector3f v=null;
        if(detecC.size()>0 ){                      
            v=posC;          
        }else if(detecCC.size()>0){
@@ -125,6 +125,7 @@ public class Coche{
            }else{
                v=orientarBola(v,true,dD/2f);
            }
+           bolaFisica.setLinearVelocity(Vector3f.ZERO);
            bolaFisica.setPhysicsLocation(v);
        }       
     }
@@ -148,8 +149,7 @@ public class Coche{
         Vector3f direccion=cocheFisico.getPhysicsRotation().getRotationColumn(2);
         m.fromAngleAxis((float) (Math.PI/2),Vector3f.UNIT_Y);
         direccion=m.mult(direccion);
-        Ray rayo= new Ray (new Vector3f (cocheFisico.getPhysicsLocation().x, cocheFisico.getPhysicsLocation().y-0.5f, cocheFisico.getPhysicsLocation().z),direccion);                                           
-        
+        Ray rayo= new Ray (new Vector3f (cocheFisico.getPhysicsLocation().x, cocheFisico.getPhysicsLocation().y-0.5f, cocheFisico.getPhysicsLocation().z),direccion);                                                   
         return rayo;
     }
     

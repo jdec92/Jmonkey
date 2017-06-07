@@ -8,7 +8,6 @@ package mygame;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionListener;
 import com.jme3.math.Vector3f;
-import com.oracle.xmlns.internal.webservices.jaxws_databinding.SoapBindingParameterStyle;
 import java.util.Random;
 
 /**
@@ -35,8 +34,7 @@ public class Colision implements PhysicsCollisionListener{
     @Override
     public void collision(PhysicsCollisionEvent event) {
     //si colision es diferente al suelo
-        if(!event.getNodeB().getName().equals("Suelo")){
-            
+        if(!event.getNodeB().getName().equals("Suelo")){            
     //Colisiones del Jugador++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++                
             if(cambio && event.getNodeA().getName().equals("Crash") && event.getNodeB().getName().equals("MisilMario")){
                 cambio=false;                
@@ -60,104 +58,69 @@ public class Colision implements PhysicsCollisionListener{
             else if(cambio && event.getNodeB().getName().substring(0,4).equals("Seta")){
                 cambio=false;
                 Random r=new Random();          
-                int tipoA=1;                                
+                int tipoA=r.nextInt(3);                   
+                int crashArma;
+                if(event.getNodeA().getName().equals("Crash")){
+                    crashArma=0;
+                    if(misilCrash.rastrea){
+                        tipoA=r.nextInt(2);
+                        tipoA++;
+                    }
+                }else if(event.getNodeA().getName().equals("Mario")){
+                    crashArma=1;
+                    if(misilMario.rastrea){
+                        tipoA=r.nextInt(2);
+                        tipoA++;
+                    }
+                }else{
+                    crashArma=2;
+                }                
                 if(event.getNodeB().getName().equals("Seta1")){                    
                     seta1.cambiarPos(seta2.id);
-    //Seta1 cogida por CRASH
-                    if(event.getNodeA().getName().equals("Crash")){
-                        switch(tipoA){
-                            case 0:
-                                if(!cajaCrash.usar){
-                                    misilCrash.usar=true;
-                                    crash.tipoA=Coche.tipoArma.Misil;
-                                }
-                                break;
-                            case 1:                           
-                                if(!misilCrash.usar){
-                                    cajaCrash.usar=true;
-                                    crash.tipoA=Coche.tipoArma.TNT;
-                                }                                
-                                break;
-                            case 2:                           
-                                if(!misilCrash.usar && !cajaCrash.usar){                                                                        
-                                    crash.inicioTurbo();                                                                                                            
-                                    crash.tipoA=Coche.tipoArma.Turbo;
-                                }                                
-                                break;
-                            }
-                    }
-    //Seta1 cogida por MARIO
-                    if(event.getNodeA().getName().equals("Mario")){
-                        switch(tipoA){
-                            case 0:
-                                if(!cajaMario.usar){
-                                    misilMario.usar=true;
-                                    mario.tipoA=Coche.tipoArma.Misil;
-                                }
-                                break;
-                            case 1:                           
-                                if(!misilMario.usar){
-                                    cajaMario.usar=true;
-                                    mario.tipoA=Coche.tipoArma.TNT;
-                                }                                
-                                break;
-                            case 2:                           
-                                if(!misilMario.usar && !cajaMario.usar){                                                                        
-                                    mario.inicioTurbo();
-                                    mario.tipoA=Coche.tipoArma.Turbo;
-                                }                                
-                                break;
-                        }
-                    }                   
-                }else if(event.getNodeB().getName().equals("Seta2")){
+                }else{
                     seta2.cambiarPos(seta1.id);
-    //Seta2 cogida por CRASH
-                    if(event.getNodeA().getName().equals("Crash")){
-                        switch(tipoA){
-                            case 0:
-                                if(!cajaCrash.usar){
-                                    misilCrash.usar=true;
-                                    crash.tipoA=Coche.tipoArma.Misil;
-                                }
-                                break;
-                            case 1:                           
-                                if(!misilCrash.usar){
-                                    cajaCrash.usar=true;
-                                    crash.tipoA=Coche.tipoArma.TNT;
-                                }                                
-                                break;
-                            case 2:                           
-                                 if(!misilCrash.usar && !cajaCrash.usar){                                                                        
-                                    crash.inicioTurbo();                                                     
-                                    crash.tipoA=Coche.tipoArma.Turbo;
-                                }                                
-                                break;
-                        }
-                    }
-    //Seta2 cogida por MARIO
-                    if(event.getNodeA().getName().equals("Mario")){
-                        switch(tipoA){
-                            case 0:
-                                if(!cajaMario.usar){
-                                    misilMario.usar=true;
-                                    mario.tipoA=Coche.tipoArma.Misil;
-                                }
-                                break;
-                            case 1:                           
-                                if(!misilMario.usar){
-                                    cajaMario.usar=true;
-                                    mario.tipoA=Coche.tipoArma.TNT;
-                                }                                
-                                break;
-                            case 2:                           
-                                if(!misilMario.usar && !cajaMario.usar){                                                                        
-                                    mario.inicioTurbo();                                                                        
-                                    mario.tipoA=Coche.tipoArma.Turbo;
-                                }                                
-                                break;
-                        }
-                    }
-                }            
+                }                                        
+                switch(tipoA){
+                    case 0:
+                        if(crashArma==0){
+                            if(!cajaCrash.usar){
+                                misilCrash.usar=true;
+                                crash.tipoA=Coche.tipoArma.Misil;
+                            }
+                        }else if(crashArma==1){
+                            if(!cajaMario.usar){
+                                misilMario.usar=true;
+                                mario.tipoA=Coche.tipoArma.Misil;
+                            }
+                        }                        
+                        break;
+                    case 1:                 
+                        if(crashArma==0){
+                            if(!misilCrash.usar){
+                                cajaCrash.usar=true;
+                                crash.tipoA=Coche.tipoArma.TNT;
+                            }                                
+                        }else if(crashArma==1){
+                            if(!misilMario.usar){
+                                cajaMario.usar=true;
+                                mario.tipoA=Coche.tipoArma.TNT;
+                            }                           
+                        }                        
+                        break;
+                    case 2:                           
+                        if(crashArma==0){
+                            if(!misilCrash.usar && !cajaCrash.usar){                                                                        
+                                crash.tipoA=Coche.tipoArma.Turbo;
+                                crash.inicioTurbo();                                                                                                                                            
+                            }                                
+                        }else if(crashArma==1){
+                            if(!misilMario.usar && !cajaMario.usar){                                
+                                mario.tipoA=Coche.tipoArma.Turbo;
+                                mario.inicioTurbo();
+                            }                                                      
+                        }                        
+                        break;
+                }                                
             }
             
     //CAJAS_____________________________________________________________
@@ -197,8 +160,7 @@ public class Colision implements PhysicsCollisionListener{
                 }else if(event.getNodeA().getName().equals("Mario")){
                     cajaMario.posOrigen();
                     mario.penalizacion();
-                    System.out.println(event.getNodeB().getName()+" choco contra "+event.getNodeA().getName());
-                    
+                    System.out.println(event.getNodeB().getName()+" choco contra "+event.getNodeA().getName());                    
                 }
             }
             
