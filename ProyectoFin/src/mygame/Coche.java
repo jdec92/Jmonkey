@@ -38,12 +38,13 @@ public class Coche{
     RigidBodyControl cocheFisico,bolaFisica;      
     Geometry geomBola;    
     Spatial coche;    
-    Vector3f[] posIniC = new Vector3f[]{new Vector3f(-46, -4.5f, 4f),new Vector3f(-50, -4.5f, 6f),new Vector3f(0,4.5f,0),new Vector3f(0,4.5f,10f)};
+    Vector3f[] posIniC = new Vector3f[]{new Vector3f(-46, -4.5f, 4f),new Vector3f(-50, -4.5f,0f),new Vector3f(0,4.5f,0),new Vector3f(0,4.5f,10f)};
     Timer tiempoParado=new Timer();
     Timer tiempoTurbo=new Timer();
     float velocidad=5f;        
     tipoArma tipoA;    
     boolean cam,esquivar;  
+    int vueltas;
                                    
     public Coche(Spatial c,String name,Ruta obj){        
         objetivo=obj;
@@ -57,6 +58,7 @@ public class Coche{
         esquivar=false;
         segundos=6;
         turboseg=6;
+        vueltas=-1;
     }
         
     public void aplicarFisica(){           

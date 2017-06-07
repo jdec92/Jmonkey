@@ -35,7 +35,7 @@ public class Arma {
         balaG = new Geometry(name, bal);
         balaFisica = new RigidBodyControl(10f);
         id=i;
-        posIniC=new Vector3f[]{new Vector3f(100f, 100f, 0),new Vector3f(120,100,0)};
+        posIniC=new Vector3f[]{new Vector3f(100f, -4f, 0),new Vector3f(120,-4,0)};
         
     }
 
@@ -47,7 +47,7 @@ public class Arma {
         bala.center();
         bala.setName(name);
         balaFisica = new RigidBodyControl(1f);
-        posIniC=new Vector3f[]{new Vector3f(0f, 100f, 0),new Vector3f(10,100,0)};
+        posIniC=new Vector3f[]{new Vector3f(-100f, -4f, 0),new Vector3f(-120,-4f,0)};
         
     }
 
@@ -58,8 +58,7 @@ public class Arma {
     }
 
     public void aplicarFisicaC() {        
-        balaG.setCullHint(Spatial.CullHint.Always);
-        balaFisica.setGravity(Vector3f.ZERO);        
+        balaG.setCullHint(Spatial.CullHint.Always);        
     }
     
     public void dectector(CollisionResults r, Vector3f pos) {                  
@@ -83,9 +82,9 @@ public class Arma {
             balaFisica.setLinearVelocity(Vector3f.ZERO);
             balaFisica.setPhysicsLocation(posi);                        
             ruta.actualizarPos(id);
-            lanzar=true;
+            lanzar=true;            
             rastrea=true;            
-        }else if(dmc<3f && !usar){
+        }else if(dmc<6f && !usar){
             rastrea=false;
         }                
     }
@@ -104,12 +103,13 @@ public class Arma {
         }                       
     }
     
-    public void avanzarMD() {
-        float velocidad = -15f;
+    public void avanzarMD() {  
+        float velocidad=-7f;
         if (lanzar) {  
             if(rastrea){
+                velocidad=-15f;
                 bala.lookAt(ruta.objetivoGeom.getLocalTranslation(), Vector3f.UNIT_Y);                
-            }else{
+            }else{                
                 bala.lookAt(obj.coche.getLocalTranslation(), Vector3f.UNIT_Y);
             }            
             balaFisica.setPhysicsRotation(bala.getLocalRotation());

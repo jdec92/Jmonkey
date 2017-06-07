@@ -10,10 +10,14 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.Matrix3f;
+import com.jme3.math.Ray;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Box;
+import java.awt.BorderLayout;
 
 /**
  * This is the Main Class of your Game. You should only do initialization here.
@@ -23,19 +27,26 @@ import com.jme3.scene.Spatial;
 public class Main extends SimpleApplication {
     
     private BulletAppState estadosFisicos;
+    private Geometry meta;   
+    private RigidBodyControl metaFisica;
     private Coche mario,crash;
     private Ruta nav,nav2,navMC,navMM;
     private Arma misilCrash,misilMario,cajaMario,cajaCrash;
     private Seta seta1,seta2;
     private Spatial suelo;    
-    private BitmapText texto;  
+    private BitmapText texto,texto2;  
     
     private RigidBodyControl sueloFisico;    
     private Colision colision;
     private ControladorTeclado cntT;    
     float tiempo=0; 
     boolean cargando=true;
-    
+    boolean semaforo=false;
+    boolean semaforo2=true;
+    int cntC=-1;
+    int cntM=-1;
+    int ganador=0;
+    int vueltas=2;
     
      
     public static void main(String[] args) {
@@ -69,7 +80,14 @@ public class Main extends SimpleApplication {
         integrarObjeto(suelo, sueloFisico, estadosFisicos, new Vector3f(0f, -4.1f,0f), 0);
         sueloFisico.setRestitution(0.9f);
         sueloFisico.setFriction(0.5f);
-                                                
+        
+    //crear meta
+        Box bal=new Box(0.4f,0.4f,0.4f);
+        meta = new Geometry("Meta", bal);
+        metaFisica = new RigidBodyControl(0f);
+        integrarObjeto(meta, metaFisica, estadosFisicos, null, "");        
+        
+        
     //crear ruta para coches
         nav=new Ruta(0);
         integrarObjeto(nav.objetivoGeom, nav.objFisico, estadosFisicos, nav.posicionActual(), "");
@@ -271,6 +289,35 @@ public class Main extends SimpleApplication {
             mario.avanzar(seta1_Mario,seta2_Mario,seta1.seta.getLocalTranslation(),seta2.seta.getLocalTranslation());                   
         }
                 
+    //controlador meta
+        float dist_metaC=crash.cocheFisico.getPhysicsLocation().distance(meta.getLocalTranslation());
+        float dist_metaM=mario.cocheFisico.getPhysicsLocation().distance(meta.getLocalTranslation());
+        if(vueltas==crash.vueltas || vueltas==mario.vueltas){
+            if(vueltas==crash.vueltas){
+                ganador=1;
+            }else{
+                ganador=2;
+            }
+        }else{
+            if(dist_metaC<10f){
+                if(cntC==crash.vueltas){
+                    crash.vueltas++;                      
+                }
+            }else{  
+                cntC=crash.vueltas;
+            }
+            if(dist_metaM<10f){
+                if(cntM==mario.vueltas){
+                    mario.vueltas++;                      
+                }
+            }else{
+                cntM=mario.vueltas;
+            }
+        }
+        
+        
+        
+            
         
     //actualizador semaforo para Colisiones.
         if(!colision.cambio){            
@@ -282,13 +329,15 @@ public class Main extends SimpleApplication {
         guiNode.detachAllChildren();
         guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
         texto = new BitmapText(guiFont, false);
+        texto2 = new BitmapText(guiFont, false);
         texto.setSize(guiFont.getCharSet().getRenderedSize());
+        texto2.setSize(guiFont.getCharSet().getRenderedSize());                
         if(tiempo<10){            
             int t=(int) tiempo;
             t=10-t;
             texto.setText(""+t);
-            texto.setLocalTranslation(320,240,0);
-            texto.setSize(150);            
+            texto.setLocalTranslation(300,300,0);
+            texto.setSize(100);            
         }else{        
             cargando=false;
             if(crash.cam){            
@@ -297,18 +346,44 @@ public class Main extends SimpleApplication {
                 }else{
                     texto.setText("Sin Armas");
                 }
+                if(crash.vueltas<=0){
+                    texto2.setText("Vuelta 0/"+vueltas);
+                }else if(ganador!=0){
+                    if(ganador==1){
+                        texto2.setText("Ganador");
+                    }else{
+                        texto2.setText("Perdedor");
+                    }
+                }else{
+                    texto2.setText("Vuelta "+crash.vueltas+"/"+vueltas);
+                }                
             }else{
                 if(misilMario.usar || cajaMario.usar || mario.tipoA==Coche.tipoArma.Turbo){
                     texto.setText("Tipo de Arma:"+mario.tipoA);            
                 }else{
                     texto.setText("Sin Armas");
                 }            
+                if(mario.vueltas<=0){
+                    texto2.setText("Vuelta 0/"+vueltas);
+                }else if(ganador!=0){
+                    if(ganador==2){
+                        texto2.setText("Ganador");
+                    }else{
+                        texto2.setText("Perdedor");
+                    }
+                }else{
+                    texto2.setText("Vuelta "+mario.vueltas+"/"+vueltas);
+                }
             }    
-            texto.setLocalTranslation(10, 480, 0);
+            texto2.setLocalTranslation(10,480,0);
+            texto2.setSize(25);
+            texto.setLocalTranslation(400, 480, 0);
             texto.setSize(25);
         }
         
-        
+        texto2.setColor(ColorRGBA.Red);        
+        texto2.setName("Vueltas");
+        guiNode.attachChild(texto2);
         texto.setColor(ColorRGBA.Red);        
         texto.setName("Texto");
         guiNode.attachChild(texto);
@@ -348,6 +423,12 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(objetoVisual);                                               //integración en el mundo visual 
         objetoVisual.addControl(objetoFisico );                                          //Asociación  objeto visual-fisico
         estadosFisicos.getPhysicsSpace().add( objetoFisico );                  //integración en el mundo físico        
+        if(posicion==null){
+            posicion=new Vector3f(-40,-4,14);
+            Matrix3f mat = new Matrix3f();
+            mat.fromAngleAxis((float) -(Math.PI/2),Vector3f.UNIT_Y);
+            objetoFisico.setPhysicsRotation(mat);
+        }
        objetoFisico.setPhysicsLocation(posicion);
     }
     
