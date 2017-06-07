@@ -19,8 +19,10 @@ public class Colision implements PhysicsCollisionListener{
     Coche crash,mario;
     Arma misilCrash,misilMario,cajaCrash,cajaMario;
     Seta seta1,seta2;
+    Audio audio;
     
-    public Colision(Coche c,Coche m,Arma mc,Arma mm,Arma cc,Arma cm,Seta s1,Seta s2){
+    public Colision(Coche c,Coche m,Arma mc,Arma mm,Arma cc,Arma cm,Seta s1,Seta s2,Audio a){
+        audio=a;
         crash=c;
         mario=m;
         misilCrash=mc;
@@ -37,6 +39,7 @@ public class Colision implements PhysicsCollisionListener{
         if(!event.getNodeB().getName().equals("Suelo")){            
     //Colisiones del Jugador++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++                
             if(cambio && event.getNodeA().getName().equals("Crash") && event.getNodeB().getName().equals("MisilMario")){
+                audio.explosion();
                 cambio=false;                
                 misilMario.posOrigen();
                 crash.penalizacion();
@@ -46,6 +49,7 @@ public class Colision implements PhysicsCollisionListener{
     
     //Colisiones del Enemigo-------------------------------------------------------------------------------------------------------------                        
             else if(cambio && event.getNodeA().getName().equals("Mario") && event.getNodeB().getName().equals("MisilCrash")){
+                audio.explosion();
                 cambio=false;                
                 misilCrash.posOrigen();
                 mario.penalizacion();
@@ -57,9 +61,10 @@ public class Colision implements PhysicsCollisionListener{
         //si alguien colisiona con una seta1 o seta2 tiene que activa el arma y mover la seta
             else if(cambio && event.getNodeB().getName().substring(0,4).equals("Seta")){
                 cambio=false;
+                audio.cogeSeta();
                 Random r=new Random();          
                 int tipoA=r.nextInt(3);                   
-                int crashArma;
+                int crashArma;                
                 if(event.getNodeA().getName().equals("Crash")){
                     crashArma=0;
                     if(misilCrash.rastrea){
@@ -111,12 +116,14 @@ public class Colision implements PhysicsCollisionListener{
                         if(crashArma==0){
                             if(!misilCrash.usar && !cajaCrash.usar){                                                                        
                                 crash.tipoA=Coche.tipoArma.Turbo;
-                                crash.inicioTurbo();                                                                                                                                            
+                                crash.inicioTurbo();      
+                                audio.turbo_crash();
                             }                                
                         }else if(crashArma==1){
                             if(!misilMario.usar && !cajaMario.usar){                                
                                 mario.tipoA=Coche.tipoArma.Turbo;
                                 mario.inicioTurbo();
+                                audio.turbo_mario();
                             }                                                      
                         }                        
                         break;
@@ -128,6 +135,7 @@ public class Colision implements PhysicsCollisionListener{
     //si algo choca contra la caja del CRASH, si es coche paraliza y si es misil vuelve a posicion oculta            
             else if(cambio && event.getNodeB().getName().equals("CajaCrash")){
                 cambio=false;                
+                audio.explosion();
                 if(event.getNodeA().getName().equals("MisilMario")){                    
                     misilMario.posOrigen();
                     cajaCrash.posOrigen();                                                            
@@ -146,7 +154,8 @@ public class Colision implements PhysicsCollisionListener{
             }        
     //si algo choca contra la caja del MARIO, si es coche paraliza y si es misil vuelve a posicion oculta            
             else if(cambio && event.getNodeB().getName().equals("CajaMario")){
-                cambio=false;                
+                cambio=false;     
+                audio.explosion();
                 if(event.getNodeA().getName().equals("MisilCrash")){                    
                     misilCrash.posOrigen();
                     cajaMario.posOrigen();

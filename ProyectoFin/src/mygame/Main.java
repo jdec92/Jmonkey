@@ -1,6 +1,8 @@
 package mygame;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioData;
+import com.jme3.audio.AudioNode;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.collision.CollisionResults;
@@ -35,7 +37,7 @@ public class Main extends SimpleApplication {
     private Seta seta1,seta2;
     private Spatial suelo;    
     private BitmapText texto,texto2;  
-    
+    private Audio audio;
     private RigidBodyControl sueloFisico;    
     private Colision colision;
     private ControladorTeclado cntT;    
@@ -85,8 +87,21 @@ public class Main extends SimpleApplication {
         Box bal=new Box(0.4f,0.4f,0.4f);
         meta = new Geometry("Meta", bal);
         metaFisica = new RigidBodyControl(0f);
+        meta.setCullHint(Spatial.CullHint.Always);
         integrarObjeto(meta, metaFisica, estadosFisicos, null, "");        
         
+        
+    //crear Audios
+        AudioNode audio_seta = new AudioNode(assetManager,"Sounds/1up.wav", AudioData.DataType.Buffer);
+        AudioNode audio_fin = new AudioNode(assetManager,"Sounds/completado.wav", AudioData.DataType.Buffer);
+        AudioNode audio_base = new AudioNode(assetManager, "Sounds/base.wav", AudioData.DataType.Stream);
+        AudioNode audio_cturbo = new AudioNode(assetManager,"Sounds/crash_turbo.wav", AudioData.DataType.Buffer);
+        AudioNode audio_mturbo = new AudioNode(assetManager,"Sounds/mario_turbo.wav", AudioData.DataType.Buffer);
+        AudioNode audio_boom = new AudioNode(assetManager, "Sounds/bomba.wav", AudioData.DataType.Buffer);
+        audio=new Audio(audio_seta, audio_fin, audio_base,audio_cturbo,audio_mturbo,audio_boom);
+        rootNode.attachChild(audio_seta);
+        rootNode.attachChild(audio_fin);
+        rootNode.attachChild(audio_base);        
         
     //crear ruta para coches
         nav=new Ruta(0);
@@ -149,11 +164,11 @@ public class Main extends SimpleApplication {
         seta2.propiedades();
                 
     //crear colision    
-        colision=new Colision(crash,mario,misilCrash,misilMario,cajaCrash,cajaMario,seta1,seta2);
+        colision=new Colision(crash,mario,misilCrash,misilMario,cajaCrash,cajaMario,seta1,seta2,audio);
         estadosFisicos.getPhysicsSpace().addCollisionListener(colision);                           
         
     //cargar Teclado
-        cntT= new ControladorTeclado(crash,mario);
+        cntT= new ControladorTeclado(crash,mario,audio);
         inicTeclado();
    }
 
@@ -277,7 +292,8 @@ public class Main extends SimpleApplication {
         misilMario.lanzar(seta1_Mario,seta2_Mario,distancia_MM_Crash,nav2.id,posMario);
         
         
-        if(!cargando){
+        if(!cargando && ganador==0){
+            audio.inicio();
     //Navegacion Jugador    
             float distancia_NavCrash = crash.cocheFisico.getPhysicsLocation().distance(nav.objFisico.getPhysicsLocation());
             nav.cambiarPos(distancia_NavCrash);
@@ -293,6 +309,7 @@ public class Main extends SimpleApplication {
         float dist_metaC=crash.cocheFisico.getPhysicsLocation().distance(meta.getLocalTranslation());
         float dist_metaM=mario.cocheFisico.getPhysicsLocation().distance(meta.getLocalTranslation());
         if(vueltas==crash.vueltas || vueltas==mario.vueltas){
+            audio.fin();
             if(vueltas==crash.vueltas){
                 ganador=1;
             }else{
@@ -313,11 +330,7 @@ public class Main extends SimpleApplication {
             }else{
                 cntM=mario.vueltas;
             }
-        }
-        
-        
-        
-            
+        }                                    
         
     //actualizador semaforo para Colisiones.
         if(!colision.cambio){            

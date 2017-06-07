@@ -16,10 +16,12 @@ import com.jme3.math.Vector3f;
 public class ControladorTeclado {    
     Coche crash;
     Coche mario;    
+    Audio audio;
     
-    public ControladorTeclado(Coche c,Coche m){
+    public ControladorTeclado(Coche c,Coche m,Audio a){
         crash=c;
         mario=m;
+        audio=a;
     }
     
     AnalogListener analogListener = new AnalogListener(){
@@ -35,10 +37,14 @@ public class ControladorTeclado {
                crash.cam=true;
             }
             if (name.equals("MuteOFF")){
-               
+                    audio.audio_base.setVolume(3);
+                    audio.audio_seta.setVolume(2);
+                    audio.audio_fin.setVolume(2);               
             }
             if (name.equals("MuteON")){
-               
+                    audio.audio_base.setVolume(0);
+                    audio.audio_seta.setVolume(0);
+                    audio.audio_fin.setVolume(0);               
             }   
         }
     };   
